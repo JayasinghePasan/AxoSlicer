@@ -1,0 +1,7 @@
+LIBRARY "SlicerCore"
+
+EXPORTS
+	createMainView
+	createModelManager
+	createModelFromSTL
+
