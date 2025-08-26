@@ -1,14 +1,9 @@
-#pragma once
-#include "direct3D.h"
-#include <d3d11.h>
-#include <d3d9.h>
-#include <wrl/client.h> 
-#include <atlcomcli.h>
-#include "Direct3D.h" // The header file you already have
+#include "pch.h"
+#include "Direct3D.h"
 
-#pragma comment( lib, "D3D11.lib" )
-#pragma comment( lib, "D3D9.lib" )
-#pragma comment( lib, "DXGI.lib" )
+#pragma comment(lib, "D3D11.lib")
+#pragma comment(lib, "D3D9.lib")
+#pragma comment(lib, "DXGI.lib")
 
 namespace Direct3D
 {

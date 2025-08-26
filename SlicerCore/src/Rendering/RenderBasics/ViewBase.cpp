@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ViewBase.h"
 
 using namespace Direct3D;
@@ -24,6 +25,9 @@ HRESULT ViewBase::createResources(UINT width, UINT height)
 {
     // First, release any old resources.
     releaseResources();
+
+    m_width = width;
+    m_height = height;
 
     // Use the global Direct3D::device to create our resources.
     if (!Direct3D::device || !Direct3D::device9)
@@ -56,11 +60,30 @@ HRESULT ViewBase::createResources(UINT width, UINT height)
     hr = dxgiResource->GetSharedHandle(&m_sharedTextureHandle);
     if (FAILED(hr)) return hr;
 
+    // --- Create Depth/Stencil ---
+    D3D11_TEXTURE2D_DESC depthDesc = {};
+    depthDesc.Width = width;
+    depthDesc.Height = height;
+    depthDesc.MipLevels = 1;
+    depthDesc.ArraySize = 1;
+    depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthDesc.SampleDesc.Count = 1;
+    depthDesc.Usage = D3D11_USAGE_DEFAULT;
+    depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthTexture;
+    hr = Direct3D::device->CreateTexture2D(&depthDesc, nullptr, &depthTexture);
+    if (FAILED(hr)) return hr;
+
+    hr = Direct3D::device->CreateDepthStencilView(depthTexture.Get(), nullptr, &m_depthStencilView);
+    if (FAILED(hr)) return hr;
+
     // --- Create the Shared DX9 Surface ---
+    Microsoft::WRL::ComPtr<IDirect3DTexture9> d3d9Texture;
     hr = Direct3D::device9->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
-        D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_sharedSurface, &m_sharedTextureHandle);
+        D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &d3d9Texture, &m_sharedTextureHandle);
+    if (FAILED(hr)) return hr;
 
-    // (Depth buffer creation would go here as well)
-
+    hr = d3d9Texture->GetSurfaceLevel(0, &m_sharedSurface);
     return hr;
 }

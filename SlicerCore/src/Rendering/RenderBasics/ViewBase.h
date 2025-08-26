@@ -20,4 +20,8 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
     Microsoft::WRL::ComPtr<IDirect3DSurface9> m_sharedSurface;
     HANDLE m_sharedTextureHandle = nullptr;
+
+    // cached size of the current render target
+    UINT m_width = 0;
+    UINT m_height = 0;
 };
