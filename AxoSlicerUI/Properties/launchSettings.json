@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AxoSlicer Ui": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
