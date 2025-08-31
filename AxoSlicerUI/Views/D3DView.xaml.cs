@@ -20,7 +20,6 @@ namespace AxoSlicer_Ui.Views
             InitializeComponent();
             Loaded += OnLoaded;
             CompositionTarget.Rendering += OnRendering;
-            _d3dimage.IsFrontBufferAvailableChanged += OnFrontBufferChanged;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -60,19 +59,6 @@ namespace AxoSlicer_Ui.Views
             _d3dimage.Lock();
             _d3dimage.AddDirtyRect(new Int32Rect(0, 0, _d3dimage.PixelWidth, _d3dimage.PixelHeight));
             _d3dimage.Unlock();
-        }
-
-        private void OnFrontBufferChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (_mainView == null)
-                return;
-
-            _mainView.frontBufferAvailableChanged(_d3dimage.IsFrontBufferAvailable ? 1 : 0);
-
-            if (_d3dimage.IsFrontBufferAvailable)
-            {
-                ResizeAndSetSurface((int)ViewHost.ActualWidth, (int)ViewHost.ActualHeight);
-            }
         }
 
         private void ResizeAndSetSurface(int width, int height)

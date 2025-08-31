@@ -1,5 +1,6 @@
-#include "RenderBasics/pch.h"
+#pragma once
 #include "MainView.h"
+#include "../pch.h"
 #include "../../Public/SlicerCoreAPI.h" 
 #include "../../src/Rendering/RenderBasics/Direct3D.h"
 
@@ -47,10 +48,5 @@ HRESULT __stdcall MainView::getSurface(void** ppSurface)
     *ppSurface = m_sharedSurface.Get();
     if (m_sharedSurface)
         m_sharedSurface->AddRef();
-    return S_OK;
-}
-
-HRESULT __stdcall MainView::frontBufferAvailableChanged(BOOL nowAvailable)
-{
     return S_OK;
 }

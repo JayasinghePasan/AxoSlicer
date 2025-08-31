@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "../../pch.h"
 #include "ViewBase.h"
 
 using namespace Direct3D;

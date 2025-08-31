@@ -13,5 +13,8 @@
 #include <d3d9.h>
 #include <wrl/client.h> 
 #include <atlcomcli.h> 
-#include "../../Misc/ComRoot.hpp"
+#include "unordered_map"
+#include "Misc/ComRoot.hpp"
+#include "Common/MeshData.h"
+#include "Common/GuidMap.h"
 

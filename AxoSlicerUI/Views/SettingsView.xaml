@@ -9,7 +9,7 @@
              Background="LightGray">
     <StackPanel>
         <TextBlock Text="Settings" Margin="10" HorizontalAlignment="Center" />
-        <Button Content="Load STL" Width="120" Margin="0 0 0 5" Command="{Binding LoadSTL}" />
+        <Button Content="Load STL" Width="120" Margin="0 0 0 5" Command="{Binding OpenSTL}" />
         <TextBlock Text="{Binding filepath}" TextWrapping="Wrap" Margin="0 0 0 5"/>
     </StackPanel>
 </UserControl>

@@ -10,7 +10,7 @@ namespace AxoSlicer_Ui.Interop
     [ComImport, Guid("83398f8d-cd43-4388-a5f4-1401721aaa56"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     interface iGeometry
     {
-        void Render();
         void getGuid(out Guid guid);
+        void Render();
     }
 }

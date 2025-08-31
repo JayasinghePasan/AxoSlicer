@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 #include "Direct3D.h"
 
 namespace Direct3D

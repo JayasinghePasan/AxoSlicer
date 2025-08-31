@@ -1,4 +1,5 @@
 #pragma once
+#include "../Misc/ComRoot.hpp"
 #include "../../Public/iMainView.h"
 #include "../../src/Rendering/RenderBasics/ViewBase.h"
 
@@ -8,7 +9,6 @@ public:
     // --- iRenderView Methods ---
 	HRESULT __stdcall resize(const int widthPixels, const int heightPixels, const float dpiScale) override;
 	HRESULT __stdcall getSurface(void** pp) override;
-	HRESULT __stdcall frontBufferAvailableChanged(BOOL nowAvailable) override;
 	HRESULT __stdcall render() override;
 
 };

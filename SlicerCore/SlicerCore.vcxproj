@@ -101,10 +101,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Common\GuidMap.h" />
+    <ClInclude Include="src\Common\MeshData.h" />
+    <ClInclude Include="src\Geometry\Geometry.h" />
+    <ClInclude Include="src\Geometry\GeometryManager.h" />
     <ClInclude Include="src\Misc\ComRoot.hpp" />
     <ClInclude Include="src\Rendering\MainView.h" />
     <ClInclude Include="src\Rendering\RenderBasics\Direct3D.h" />
-    <ClInclude Include="src\Rendering\RenderBasics\pch.h" />
+    <ClInclude Include="src\pch.h" />
     <ClInclude Include="Public\iMainView.h" />
     <ClInclude Include="Public\iGeometry.h" />
     <ClInclude Include="Public\iGeometryManager.h" />
@@ -114,10 +118,12 @@
     <ClInclude Include="src\Rendering\RenderBasics\ViewBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Geometry\Geometry.cpp" />
+    <ClCompile Include="src\Geometry\GeometryManager.cpp" />
     <ClCompile Include="src\Misc\AtlModule.cpp" />
     <ClCompile Include="src\Rendering\RenderBasics\Direct3D.cpp" />
     <ClCompile Include="src\Rendering\MainView.cpp" />
-    <ClCompile Include="src\Rendering\RenderBasics\pch.cpp">
+    <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
