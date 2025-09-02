@@ -60,41 +60,26 @@ namespace Direct3D
         return hr;
     }
 
-    static HRESULT CompileShaderFromFile(LPCWSTR path, LPCSTR entry, LPCSTR target, CComPtr<ID3DBlob>& blobOut)
+    static HRESULT LoadBlobFromFile(LPCWSTR path, CComPtr<ID3DBlob>& blob)
     {
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined(_DEBUG)
-        flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-        CComPtr<ID3DBlob> err;
-        HRESULT hr = D3DCompileFromFile(path, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry, target, flags, 0, &blobOut, &err);
-        if (FAILED(hr) && err)
-            OutputDebugStringA((const char*)err->GetBufferPointer());
-        return hr;
+        return D3DReadFileToBlob(path, &blob);
     }
 
-    HRESULT Direct3D::BindShadersFromFiles(
-        const wchar_t* vsPath,
-        const wchar_t* psPath,
-        const D3D11_INPUT_ELEMENT_DESC* layout, UINT layoutCount,
-        const char* vsEntry, const char* psEntry,
-        const char* vsModel, const char* psModel,
-        ID3D11VertexShader** outVS,
-        ID3D11PixelShader** outPS,
-        ID3D11InputLayout** outIL)
+    HRESULT Direct3D::BindShadersFromCSO(const wchar_t* vsCsoPath, const wchar_t* psCsoPath, const D3D11_INPUT_ELEMENT_DESC* layout, 
+        UINT layoutCount, ID3D11VertexShader** outVS, ID3D11PixelShader** outPS, ID3D11InputLayout** outIL)
     {
-        if (!device11 || !context) return E_FAIL;
+        if (!device11 || !context) 
+            return E_FAIL;
 
         CComPtr<ID3DBlob> vsBlob, psBlob;
-        HRESULT hr = CompileShaderFromFile(vsPath, vsEntry, vsModel, vsBlob);
+        HRESULT hr = LoadBlobFromFile(vsCsoPath, vsBlob);
         if (FAILED(hr)) 
             return hr;
 
-        hr = CompileShaderFromFile(psPath, psEntry, psModel, psBlob);
+        hr = LoadBlobFromFile(psCsoPath, psBlob);
         if (FAILED(hr)) 
             return hr;
 
-        // Create shaders
         CComPtr<ID3D11VertexShader> vs;
         CComPtr<ID3D11PixelShader>  ps;
 
@@ -110,25 +95,44 @@ namespace Direct3D
         if (FAILED(hr)) 
             return hr;
 
-        // Create input layout (based on VS bytecode)
         CComPtr<ID3D11InputLayout> il;
-        hr = device11->CreateInputLayout(layout, layoutCount,
-            vsBlob->GetBufferPointer(),
-            vsBlob->GetBufferSize(),
+        hr = device11->CreateInputLayout(
+            layout, layoutCount,
+            vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
             &il);
         if (FAILED(hr)) 
             return hr;
 
-        // Bind
         context->IASetInputLayout(il);
         context->VSSetShader(vs, nullptr, 0);
         context->PSSetShader(ps, nullptr, 0);
 
-        // (Optional) hand back the created objects to caller if they want to keep them
         if (outVS) *outVS = vs.Detach();
         if (outPS) *outPS = ps.Detach();
         if (outIL) *outIL = il.Detach();
 
+        return S_OK;
+    }
+
+    HRESULT Direct3D::BindComputeShaderFromCSO(const wchar_t* csCsoPath, ID3D11ComputeShader** outCS)
+    {
+        if (!device11 || !context) 
+            return E_FAIL;
+
+        CComPtr<ID3DBlob> csBlob;
+        HRESULT hr = LoadBlobFromFile(csCsoPath, csBlob);
+        if (FAILED(hr)) 
+            return hr;
+
+        CComPtr<ID3D11ComputeShader> cs;
+        hr = device11->CreateComputeShader(csBlob->GetBufferPointer(),
+            csBlob->GetBufferSize(),
+            nullptr, &cs);
+        if (FAILED(hr)) 
+            return hr;
+
+        context->CSSetShader(cs, nullptr, 0);
+        if (outCS) *outCS = cs.Detach();
         return S_OK;
     }
 }

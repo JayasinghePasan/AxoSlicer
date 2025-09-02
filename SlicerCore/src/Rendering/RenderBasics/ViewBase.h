@@ -11,6 +11,7 @@ public:
 protected:
     // get called on every resizing
     HRESULT createResources(UINT width, UINT height);
+    void bindTargetAndViewport(UINT width, UINT height);
     void releaseResources();
 
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;

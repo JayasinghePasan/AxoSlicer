@@ -66,13 +66,18 @@ HRESULT __stdcall Geometry::Render()
 
     D3D11_INPUT_ELEMENT_DESC layout[] = 
     {
-    { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
-      D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { 
+            "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 
+        }
     };
 
-    HRESULT hr = Direct3D::BindShadersFromFiles( L"\\..\\Rendering\\Shaders\\SimpleVS.hlsl", L"..\\Rendering\\Shaders\\SimplePS.hlsl", layout, _countof(layout)); 
+    HRESULT hr = Direct3D::BindShadersFromCSO(
+        L"SimpleVS.cso",
+        L"SimplePS.cso",
+        layout, _countof(layout));
+
     if (FAILED(hr))
-        return S_FALSE;
+        return hr;
     UINT stride = sizeof(float) * 3;
     UINT offset = 0;
     ID3D11Buffer* vb = vertexBuffer.Get();

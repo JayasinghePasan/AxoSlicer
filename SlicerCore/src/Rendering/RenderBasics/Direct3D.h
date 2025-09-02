@@ -19,15 +19,13 @@ namespace Direct3D
     extern CComPtr<ID3D11InputLayout>   simpleInputLayout;
 
     HRESULT createDevices(HWND hWnd);
-    HRESULT BindShadersFromFiles(
-        const wchar_t* vsPath,
-        const wchar_t* psPath,
+    
+    HRESULT BindShadersFromCSO(const wchar_t* vsCsoPath, const wchar_t* psCsoPath,
         const D3D11_INPUT_ELEMENT_DESC* layout, UINT layoutCount,
-        const char* vsEntry = "VSMain",
-        const char* psEntry = "PSMain",
-        const char* vsModel = "vs_5_0",
-        const char* psModel = "ps_5_0",
         ID3D11VertexShader** outVS = nullptr,
         ID3D11PixelShader** outPS = nullptr,
         ID3D11InputLayout** outIL = nullptr);
+
+    // (Optional) bind a compute shader from .cso
+    HRESULT BindComputeShaderFromCSO( const wchar_t* csCsoPath, ID3D11ComputeShader** outCS = nullptr);
 }

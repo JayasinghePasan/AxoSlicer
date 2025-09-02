@@ -42,6 +42,15 @@ HRESULT ViewBase::createResources(UINT width, UINT height)
     Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11Tex;
     device11->CreateTexture2D(&desc, nullptr, &d3d11Tex);
 
+    // create viewport
+    D3D11_VIEWPORT vp{};
+    vp.TopLeftX = 0.0f;  vp.TopLeftY = 0.0f;
+    vp.Width = static_cast<float>(width);
+    vp.Height = static_cast<float>(height);
+    vp.MinDepth = 0.0f;  vp.MaxDepth = 1.0f;
+
+    Direct3D::context->RSSetViewports(1, &vp);
+
     // Create the RTV
     HRESULT hr = device11->CreateRenderTargetView(d3d11Tex.Get(), nullptr, &m_renderTargetView);
     if (FAILED(hr)) 
@@ -69,4 +78,21 @@ HRESULT ViewBase::createResources(UINT width, UINT height)
        return hr;
 
     return hr;
+}
+
+void ViewBase::bindTargetAndViewport(UINT width, UINT height)
+{
+    if (!m_renderTargetView) 
+        return;
+
+    D3D11_VIEWPORT vp{};
+    vp.TopLeftX = 0.0f;  vp.TopLeftY = 0.0f;
+    vp.Width = static_cast<float>(width);
+    vp.Height = static_cast<float>(height);
+    vp.MinDepth = 0.0f;  vp.MaxDepth = 1.0f;
+
+    Direct3D::context->RSSetViewports(1, &vp);
+
+    ID3D11RenderTargetView* rtv = m_renderTargetView.Get();
+    Direct3D::context->OMSetRenderTargets(1, &rtv, nullptr);
 }

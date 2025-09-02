@@ -44,6 +44,8 @@ HRESULT __stdcall MainView::render()
 
 HRESULT __stdcall MainView::resize(const int widthPixels, const int heightPixels, const float dpiScale)
 {
+    m_width  = widthPixels;
+    m_height = heightPixels;
     return createResources(widthPixels, heightPixels);
 }
 
