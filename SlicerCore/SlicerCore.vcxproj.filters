@@ -90,7 +90,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Rendering\Shaders\SimpleVertexShader.hlsl" />
-    <FxCompile Include="src\Rendering\Shaders\SimplePixelShader.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\SimpleVS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\SimplePS.hlsl" />
   </ItemGroup>
 </Project>

@@ -133,11 +133,11 @@
     <None Include="SlicerCore.def" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Rendering\Shaders\SimplePixelShader.hlsl">
+    <FxCompile Include="src\Rendering\Shaders\SimplePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="src\Rendering\Shaders\SimpleVertexShader.hlsl">
+    <FxCompile Include="src\Rendering\Shaders\SimpleVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
