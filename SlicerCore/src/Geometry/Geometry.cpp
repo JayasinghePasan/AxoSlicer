@@ -1,6 +1,9 @@
 #pragma once
 #include "Geometry.h"
 #include "../pch.h"
+#include "../Rendering/RenderBasics/Direct3D.h"
+
+using namespace Direct3D;
 
 HRESULT createGeometry(const void* buffer, size_t length, iGeometry** ppGeometry)
 {
@@ -52,16 +55,65 @@ HRESULT Geometry::LoadFromBuffer(const void* buffer, size_t length)
         ptr += sizeof(Triangle);
     }
 
+    UploadToGPUBuffers();
     return S_OK;
 }
 
 HRESULT __stdcall Geometry::Render()
 {
-    throw E_NOTIMPL;
+    if (!context || !vertexBuffer)
+        return E_FAIL;
+
+    UINT stride = sizeof(float) * 3;
+    UINT offset = 0;
+    ID3D11Buffer* vb = vertexBuffer.Get();
+
+    context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+    context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    context->Draw(static_cast<UINT>(triangles.size() * 3), 0);
 }
 
 HRESULT __stdcall Geometry::GetGuid(GUID& guid)
 {
     guid = geometryID;
     return S_OK;
+}
+
+void Geometry::UploadToGPUBuffers()
+{
+    // if already uploaded
+    if (vertexBuffer)
+        return;
+
+    if (triangles.empty())
+        return;
+    
+    std::vector<Vertex> vertices;
+    vertices.reserve(triangles.size() * 3);
+
+    for (const Triangle& tri : triangles)
+    {
+        vertices.push_back(Vertex(tri.v1[0], tri.v1[1], tri.v1[2]));
+        vertices.push_back(Vertex(tri.v2[0], tri.v2[1], tri.v2[2]));
+        vertices.push_back(Vertex(tri.v3[0], tri.v3[1], tri.v3[2]));
+    }
+
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = static_cast<UINT>(vertices.size() * sizeof(Vertex));
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bd.CPUAccessFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA initData = {};
+    initData.pSysMem = vertices.data();
+
+    HRESULT hr = device11->CreateBuffer(&bd, &initData, &vertexBuffer);
+    if (FAILED(hr))
+    {
+        vertexBuffer.Reset();
+        return;
+    }
+
+    triangles.clear();
+    return;
 }

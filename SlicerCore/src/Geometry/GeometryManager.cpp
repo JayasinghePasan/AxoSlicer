@@ -4,12 +4,16 @@
 
 HRESULT createGeometryManager(iGeometryManager** ppGeomManager)
 {
+    if (!ppGeomManager)
+       return E_POINTER;
+
     CComPtr<CComObject<GeometryManager>> geometryManager;
     HRESULT hr = createInstance(geometryManager);
     if (FAILED(hr))
         return hr;
-
+        
     *ppGeomManager = geometryManager.Detach();
+
     return S_OK;
 }
 
@@ -30,8 +34,19 @@ HRESULT __stdcall GeometryManager::AddGeometry(iGeometry* geometry)
     return S_OK;
 }
 
-HRESULT __stdcall GeometryManager::RemoveGeometry(iGeometry* geometry)
+HRESULT __stdcall GeometryManager::RemoveGeometry(GUID geometryID)
 {
-    return E_NOTIMPL;
+    geometryMap.erase(geometryID);
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::RenderGeometries()
+{
+    for (auto it : geometryMap)
+    {
+        if (it.second)
+            it.second->Render();
+    }
+    return S_OK;
 }
 

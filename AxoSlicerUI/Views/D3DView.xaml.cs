@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Windows.Controls;
+using AxoSlicer_Ui.ViewModels;
 
 namespace AxoSlicer_Ui.Views
 {
@@ -30,6 +31,14 @@ namespace AxoSlicer_Ui.Views
             {
                 return;
             }
+
+            iGeometryManager nativeGeometryManager;
+            if (NativeMethods.createGeometryManager(out nativeGeometryManager) != 0)
+            {
+                return;
+            }
+            MainViewModel.Instance.initializeMainView(_mainView, nativeGeometryManager);
+
             ViewHost.SizeChanged += OnHostSizeChanged;
 
             Dispatcher.BeginInvoke(new Action(() =>

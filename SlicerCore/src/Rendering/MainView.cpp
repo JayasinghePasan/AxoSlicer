@@ -3,6 +3,7 @@
 #include "../pch.h"
 #include "../../Public/SlicerCoreAPI.h" 
 #include "../../src/Rendering/RenderBasics/Direct3D.h"
+#include "../Geometry/GeometryManager.h"
 
 using namespace Direct3D;
 
@@ -24,6 +25,7 @@ HRESULT createMainView(HWND hWnd, iMainView** ppView)
 
 HRESULT __stdcall MainView::render()
 {
+    // setting the background
     float clearColor[] = { 0.8f, 0.9f, 0.9f, 1.0f };
     if (Direct3D::context && m_renderTargetView)
     {
@@ -31,6 +33,10 @@ HRESULT __stdcall MainView::render()
         Direct3D::context->OMSetRenderTargets(1, &rtv, nullptr);
         Direct3D::context->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
     }
+
+    // rendering the geometries
+    if (geometryManager != NULL)
+        geometryManager->RenderGeometries();
 
     Direct3D::context->Flush();
     return S_OK;
@@ -48,5 +54,11 @@ HRESULT __stdcall MainView::getSurface(void** ppSurface)
     *ppSurface = m_sharedSurface.Get();
     if (m_sharedSurface)
         m_sharedSurface->AddRef();
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::setGeometryManager(iGeometryManager* geomManger)
+{
+    geometryManager = geomManger;
     return S_OK;
 }

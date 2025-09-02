@@ -24,6 +24,8 @@ namespace AxoSlicer_Ui.Interop
         int render();
         int resize(int widthPixels, int heightPixels, float dpiScale);
         int getSurface(out IntPtr ppSurface);
+
+        int setGeometryManager(iGeometryManager nativeGeometryManager);
     }
 
     public static class NativeMethods

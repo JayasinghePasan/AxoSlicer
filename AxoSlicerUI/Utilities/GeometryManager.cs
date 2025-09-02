@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using AxoSlicer_Ui.Interop;
+using AxoSlicer_Ui.ViewModels;
 
 namespace AxoSlicer_Ui.Utilities
 {
@@ -15,12 +16,10 @@ namespace AxoSlicer_Ui.Utilities
         List<Geometry> geometries;
         iGeometryManager nativeGeometryManager = null;
 
-        public GeometryManager()
+        public GeometryManager(iGeometryManager nativeManager)
         {
-            geometries = new List<Geometry>();
-            int hr = NativeMethods.createGeometryManager(out nativeGeometryManager);
-            if (hr != 0 || nativeGeometryManager == null)
-                throw new InvalidComObjectException("Geometry manager loading failed.");
+            this.geometries = new List<Geometry>();
+            this.nativeGeometryManager = nativeManager;
         }
 
         public void AddGeometry(string filePath)
@@ -46,6 +45,22 @@ namespace AxoSlicer_Ui.Utilities
             finally
             {
                 Marshal.FreeHGlobal(unmanagedData);
+            }
+        }
+
+        public void RemoveGeometry(Guid geometryId)
+        {
+            foreach (Geometry geometry in geometries)
+            {
+                if (geometry.geometryId == geometryId)
+                {
+                    // remove from back end
+                    nativeGeometryManager.RemoveGeometry(geometryId);
+
+                    // remove from front end
+                    geometries.Remove(geometry);
+                    return;
+                }
             }
         }
 

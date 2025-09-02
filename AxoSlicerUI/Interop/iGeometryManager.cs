@@ -11,6 +11,7 @@ namespace AxoSlicer_Ui.Interop
     interface iGeometryManager
     {
         void AddGeometry(iGeometry Geometry);
-        void RemoveGeometry(iGeometry Geometry);
+        void RemoveGeometry(Guid Geometry);
+        void RenderGeometries();
     }
 }

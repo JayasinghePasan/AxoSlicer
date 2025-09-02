@@ -89,4 +89,8 @@
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\Rendering\Shaders\SimpleVertexShader.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\SimplePixelShader.hlsl" />
+  </ItemGroup>
 </Project>

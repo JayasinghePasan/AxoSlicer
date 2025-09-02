@@ -1,5 +1,13 @@
 #pragma once
 
+struct Vertex
+{
+    float x, y, z;
+    Vertex(float xx, float yy, float zz)
+        : x(xx), y(yy), z(zz)
+    {}
+};
+
 struct Triangle
 {
     float normal[3];
@@ -8,3 +16,5 @@ struct Triangle
     float v3[3];
     uint16_t attributeByteCount;
 };
+
+
