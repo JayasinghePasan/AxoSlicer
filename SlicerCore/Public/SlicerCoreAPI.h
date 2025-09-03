@@ -7,4 +7,4 @@
 
 HRESULT __stdcall createMainView(HWND hwnd, iMainView** ppRenderView);
 HRESULT __stdcall createGeometryManager(iGeometryManager** ppGeometryManager);
-HRESULT __stdcall createGeometryFromSTL(const void* buffer, size_t length, iGeometry** ppGeometry);
+HRESULT __stdcall createGeometry(const void* buffer, size_t length, iGeometry** ppGeometry);

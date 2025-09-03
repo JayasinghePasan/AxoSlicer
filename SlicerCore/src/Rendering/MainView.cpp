@@ -5,7 +5,16 @@
 #include "../../src/Rendering/RenderBasics/Direct3D.h"
 #include "../Geometry/GeometryManager.h"
 
+
+#define RENDERDOC_NOHELPER 
+#include "renderdoc_app.h"
+static RENDERDOC_API_1_6_0* g_rdoc = nullptr;
+void InitRenderDocAPI();
+
 using namespace Direct3D;
+using namespace DirectX;
+
+
 
 HRESULT createMainView(HWND hWnd, iMainView** ppView)
 {
@@ -25,6 +34,15 @@ HRESULT createMainView(HWND hWnd, iMainView** ppView)
 
 HRESULT __stdcall MainView::render()
 {
+    if (!renderdocLoaded)
+    {
+        InitRenderDocAPI();
+        renderdocLoaded = true;
+    }
+
+    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);
+
+
     // setting the background
     float clearColor[] = { 0.8f, 0.9f, 0.9f, 1.0f };
     if (Direct3D::context && m_renderTargetView)
@@ -35,17 +53,29 @@ HRESULT __stdcall MainView::render()
     }
 
     // rendering the geometries
-    if (geometryManager != NULL)
-        geometryManager->RenderGeometries();
+    if (geometryManager == NULL || GeomCount() <= 0)
+    {
+        Direct3D::context->Flush();
+        return S_OK;
+    }
+
+    // update model view proj
+    BoundingBox bb;
+    geometryManager->GetGlobalBoundingBox(bb);
+    UpdateMVPCBuffer(bb, renderState);
+    geometryManager->RenderGeometries();
 
     Direct3D::context->Flush();
+
+    if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
+
     return S_OK;
 }
 
 HRESULT __stdcall MainView::resize(const int widthPixels, const int heightPixels, const float dpiScale)
 {
-    m_width  = widthPixels;
-    m_height = heightPixels;
+    renderState.width  = widthPixels;
+    renderState.height = heightPixels;
     return createResources(widthPixels, heightPixels);
 }
 
@@ -64,3 +94,53 @@ HRESULT __stdcall MainView::setGeometryManager(iGeometryManager* geomManger)
     geometryManager = geomManger;
     return S_OK;
 }
+
+HRESULT __stdcall MainView::zoom(float delta)
+{
+    renderState.distance *= (1.0f - delta * 0.001f);
+    if (renderState.distance < 0.1f) renderState.distance = 0.1f;
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::rotate(float dx, float dy)
+{
+    renderState.yaw += dx * 0.005f;
+    renderState.pitch += dy * 0.005f;
+    const float limit = DirectX::XM_PIDIV2 - 0.01f;
+    if (renderState.pitch >  limit) renderState.pitch = limit;
+    if (renderState.pitch < -limit) renderState.pitch = -limit;
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::pan(float dx, float dy)
+{
+    renderState.pan.x += dx * 0.002f;
+    renderState.pan.y += dy * 0.002f;
+    return S_OK;
+}
+
+int MainView::GeomCount()
+{
+    int geomCount = 0;
+    geometryManager->getGeometryCount(geomCount);
+    return geomCount;
+}
+
+
+
+void InitRenderDocAPI()
+{
+    HMODULE mod = GetModuleHandleA("renderdoc.dll");
+    if (!mod)
+    {
+        mod = LoadLibraryA("renderdoc.dll");
+    }
+
+    if (mod)
+    {
+        pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+        if (RENDERDOC_GetAPI)
+            RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&g_rdoc);
+    }
+}
+

@@ -26,34 +26,91 @@ HRESULT createGeometry(const void* buffer, size_t length, iGeometry** ppGeometry
 
 HRESULT Geometry::LoadFromBuffer(const void* buffer, size_t length)
 {
-    if (!buffer || length < 84) 
+    if (!buffer || length < 84)
         return E_FAIL;
 
-    // assign the unique geometry id
-    HRESULT hr = CoCreateGuid(&geometryID);
-    if (FAILED(hr))
+    // Assign a unique geometry id
+    if (FAILED(CoCreateGuid(&geometryID)))
         return E_FAIL;
 
-    const char* ptr = static_cast<const char*>(buffer);
+    const auto* base = static_cast<const std::uint8_t*>(buffer);
+    const auto* p = base;
+    const auto* end = base + length;
 
-    char header[81] = {};
-    memcpy(header, ptr, 80);
-    ptr += 80;
+    // --- Skip 80-byte header
+    p += 80;
 
-    uint32_t triCount = *reinterpret_cast<const uint32_t*>(ptr);
-    ptr += 4;
+    // --- Read triangle count (little-endian)
+    std::uint32_t triCount = 0;
+    if (p + 4 > end) return E_FAIL;
+    std::memcpy(&triCount, p, 4);
+    p += 4;
 
-    if (length < 84ull + 50ull * triCount)
-        return E_FAIL; 
+    // --- Validate total size: 84 + 50 * triCount
+    // (Use math that can’t overflow and also checks remaining bytes)
+    if (length < 84ull || triCount >(length - 84ull) / 50ull)
+        return E_FAIL;
 
+    const size_t need = 84ull + 50ull * static_cast<size_t>(triCount);
+    if (length < need)
+        return E_FAIL;
+
+    // --- On-disk facet is EXACTLY 50 bytes. Use a packed POD to read safely.
+#pragma pack(push, 1)
+    struct StlFacet50 {
+        float n[3];     // normal (often junk in STL, usually recompute later)
+        float v1[3];
+        float v2[3];
+        float v3[3];
+        std::uint16_t attr; // attribute byte count (often 0)
+    };
+#pragma pack(pop)
+    static_assert(sizeof(StlFacet50) == 50, "STL facet must be 50 bytes");
+
+    // Prepare containers
+    triangles.clear();
     triangles.reserve(triCount);
-    for (uint32_t i = 0; i < triCount; ++i)
+
+    boundingBox.minX = boundingBox.minY = boundingBox.minZ = std::numeric_limits<float>::infinity();
+    boundingBox.maxX = boundingBox.maxY = boundingBox.maxZ = -std::numeric_limits<float>::infinity();
+
+    // Small cleaner: zero NaN and subnormal floats (avoid #DEN, weird bbox)
+    auto clean = [](float& x) {
+        if (!std::isfinite(x) || std::fpclassify(x) == FP_SUBNORMAL) x = 0.0f;
+        };
+    auto clean3 = [&](float v[3]) { clean(v[0]); clean(v[1]); clean(v[2]); };
+
+    // --- Read facets one by one
+    for (std::uint32_t i = 0; i < triCount; ++i)
     {
-        Triangle t;
-        memcpy(&t, ptr, sizeof(Triangle));
+        if (p + sizeof(StlFacet50) > end)
+            return E_FAIL; // defensive per-iteration bound
+
+        StlFacet50 facet;
+        std::memcpy(&facet, p, sizeof(facet));
+        p += sizeof(facet);
+
+        // sanitize vertices
+        clean3(facet.v1);
+        clean3(facet.v2);
+        clean3(facet.v3);
+
+        // Convert to your runtime Triangle (don’t rely on sizeof(Triangle)==50)
+        Triangle t{};
+        t.v1[0] = facet.v1[0]; t.v1[1] = facet.v1[1]; t.v1[2] = facet.v1[2];
+        t.v2[0] = facet.v2[0]; t.v2[1] = facet.v2[1]; t.v2[2] = facet.v2[2];
+        t.v3[0] = facet.v3[0]; t.v3[1] = facet.v3[1]; t.v3[2] = facet.v3[2];
         triangles.push_back(t);
-        ptr += sizeof(Triangle);
+
+        // Expand bounding box
+        boundingBox.expandToInclude(t.v1[0], t.v1[1], t.v1[2]);
+        boundingBox.expandToInclude(t.v2[0], t.v2[1], t.v2[2]);
+        boundingBox.expandToInclude(t.v3[0], t.v3[1], t.v3[2]);
     }
+
+    // Optional integrity check: consumed exactly the STL payload
+    if (p != base + need)
+        return E_FAIL;
 
     UploadToGPUBuffers();
     return S_OK;
@@ -84,7 +141,7 @@ HRESULT __stdcall Geometry::Render()
 
     context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
     context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    context->Draw(static_cast<UINT>(triangles.size() * 3), 0);
+    context->Draw(static_cast<UINT>(trianglesCount * 3), 0);
 }
 
 HRESULT __stdcall Geometry::GetGuid(GUID& guid)
@@ -127,7 +184,13 @@ void Geometry::UploadToGPUBuffers()
         vertexBuffer.Reset();
         return;
     }
-
+    trianglesCount = (UINT)triangles.size();
     triangles.clear();
     return;
+}
+
+HRESULT Geometry::GetBoundingBox(BoundingBox& box)
+{
+    box = boundingBox;
+    return S_OK;
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AxoSlicer_Ui.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,5 +13,6 @@ namespace AxoSlicer_Ui.Interop
     {
         void getGuid(out Guid guid);
         void Render();
+        void GetBoundingBox(out BoundingBox box);
     }
 }

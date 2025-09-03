@@ -101,8 +101,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\renderdoc_app.h" />
+    <ClInclude Include="src\Common\BoundingBox.h" />
     <ClInclude Include="src\Common\GuidMap.h" />
     <ClInclude Include="src\Common\MeshData.h" />
+    <ClInclude Include="src\Common\RenderingBuffers.h" />
+    <ClInclude Include="src\Common\RenderState.h" />
     <ClInclude Include="src\Geometry\Geometry.h" />
     <ClInclude Include="src\Geometry\GeometryManager.h" />
     <ClInclude Include="src\Misc\ComRoot.hpp" />
@@ -131,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def" />
+    <None Include="src\Rendering\Shaders\Common.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Rendering\Shaders\SimplePS.hlsl">

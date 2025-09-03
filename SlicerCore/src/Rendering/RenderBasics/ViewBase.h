@@ -8,14 +8,18 @@ public:
     ViewBase();
     virtual ~ViewBase();
 
+    void UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs);
+
 protected:
     // get called on every resizing
     HRESULT createResources(UINT width, UINT height);
-    void bindTargetAndViewport(UINT width, UINT height);
+    void createMVPCBuffer();
     void releaseResources();
 
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
     Microsoft::WRL::ComPtr<IDirect3DSurface9> m_sharedSurface;
     HANDLE m_sharedTextureHandle = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbMVP;  // pass mvp matrix to shaders
 };

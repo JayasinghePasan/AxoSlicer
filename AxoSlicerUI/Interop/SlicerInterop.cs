@@ -26,6 +26,9 @@ namespace AxoSlicer_Ui.Interop
         int getSurface(out IntPtr ppSurface);
 
         int setGeometryManager(iGeometryManager nativeGeometryManager);
+        int zoom(float delta);
+        int rotate(float dx, float dy);
+        int pan(float dx, float dy);
     }
 
     public static class NativeMethods

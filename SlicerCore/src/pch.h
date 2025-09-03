@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <vector>
 #include <array>
+#include <cmath>     
+#include <algorithm> 
 #include <unordered_set>
 #include <atlcoll.h>
 #include <atlstr.h>
@@ -17,4 +19,7 @@
 #include "Misc/ComRoot.hpp"
 #include "Common/MeshData.h"
 #include "Common/GuidMap.h"
+#include "Common/BoundingBox.h"
+#include "Common/RenderingBuffers.h"
+#include "Common/RenderState.h"
 

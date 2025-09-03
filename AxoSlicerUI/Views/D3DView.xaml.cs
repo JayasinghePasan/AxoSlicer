@@ -16,6 +16,13 @@ namespace AxoSlicer_Ui.Views
         private iMainView? _mainView;
         private IntPtr _surface = IntPtr.Zero;
 
+        private Point _lastPos;
+        private bool _rotating;
+        private bool _panning;
+
+        public enum MouseMode { Navigate, Pick }
+        public MouseMode CurrentMode { get; set; } = MouseMode.Navigate;
+
         public D3DView()
         {
             InitializeComponent();
@@ -40,6 +47,10 @@ namespace AxoSlicer_Ui.Views
             MainViewModel.Instance.initializeMainView(_mainView, nativeGeometryManager);
 
             ViewHost.SizeChanged += OnHostSizeChanged;
+            ViewHost.MouseWheel += OnMouseWheel;
+            ViewHost.MouseDown += OnMouseDown;
+            ViewHost.MouseUp += OnMouseUp;
+            ViewHost.MouseMove += OnMouseMove;
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -97,6 +108,48 @@ namespace AxoSlicer_Ui.Views
                     ViewImage.Source = _d3dimage;
 
                 _surface = surface;
+            }
+        }
+
+        private void OnMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            if (CurrentMode == MouseMode.Navigate)
+                _mainView?.zoom(e.Delta);
+        }
+
+        private void OnMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _lastPos = e.GetPosition(ViewHost);
+            if (CurrentMode == MouseMode.Navigate)
+            {
+                if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+                    _rotating = true;
+                if (e.RightButton == System.Windows.Input.MouseButtonState.Pressed)
+                    _panning = true;
+            }
+            ViewHost.CaptureMouse();
+        }
+
+        private void OnMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _rotating = _panning = false;
+            ViewHost.ReleaseMouseCapture();
+        }
+
+        private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (_mainView == null)
+                return;
+            var pos = e.GetPosition(ViewHost);
+            var dx = (float)(pos.X - _lastPos.X);
+            var dy = (float)(pos.Y - _lastPos.Y);
+            _lastPos = pos;
+            if (CurrentMode == MouseMode.Navigate)
+            {
+                if (_rotating)
+                    _mainView.rotate(dx, dy);
+                else if (_panning)
+                    _mainView.pan(dx, dy);
             }
         }
     }

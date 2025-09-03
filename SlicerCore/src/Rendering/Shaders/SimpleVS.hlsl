@@ -1,3 +1,5 @@
+#include "Common.hlsli"
+
 struct VSInput
 {
     float3 pos : POSITION;
@@ -11,6 +13,6 @@ struct VSOutput
 VSOutput main(VSInput input)
 {
     VSOutput output;
-    output.pos = float4(input.pos, 1.0f);
+    output.pos = mul(modelViewProj, float4(input.pos, 1.0f));
     return output;
 }

@@ -31,12 +31,16 @@ HRESULT __stdcall GeometryManager::AddGeometry(iGeometry* geometry)
         return E_FAIL;
 
     geometryMap[geomGuid] = geometry;
+
+    RecalcualteBoundingBox();
+
     return S_OK;
 }
 
 HRESULT __stdcall GeometryManager::RemoveGeometry(GUID geometryID)
 {
     geometryMap.erase(geometryID);
+    RecalcualteBoundingBox();
     return S_OK;
 }
 
@@ -48,5 +52,30 @@ HRESULT __stdcall GeometryManager::RenderGeometries()
             it.second->Render();
     }
     return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::GetGlobalBoundingBox(BoundingBox& box)
+{
+    box = globalBoundingBox;
+    return S_OK;
+}
+
+HRESULT __stdcall  GeometryManager::getGeometryCount(int& count)
+{
+    count = geometryMap.size();
+    return S_OK;
+}
+
+void GeometryManager::RecalcualteBoundingBox()
+{
+    globalBoundingBox.minX = globalBoundingBox.minY = globalBoundingBox.minZ =  std::numeric_limits<float>::infinity();
+    globalBoundingBox.maxX = globalBoundingBox.maxY = globalBoundingBox.maxZ = -std::numeric_limits<float>::infinity();
+
+    for (auto geom : geometryMap)
+    {
+        BoundingBox geomBox;
+        geom.second->GetBoundingBox(geomBox);
+        globalBoundingBox.expandToInclude(geomBox);
+    }
 }
 
