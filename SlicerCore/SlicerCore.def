@@ -1,0 +1,8 @@
+LIBRARY "SlicerCore"
+
+EXPORTS
+	createMainView
+	createGeometryManager
+	createGeometry
+
+
