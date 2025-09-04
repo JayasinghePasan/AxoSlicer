@@ -23,6 +23,8 @@ public:
 	HRESULT __stdcall zoom(float delta) override;
 	HRESULT __stdcall rotate(float dx, float dy) override;
 	HRESULT __stdcall pan(float dx, float dy) override;
+	HRESULT __stdcall resetView() override;
+	HRESULT __stdcall setProjection(int mode) override;
 
 	int GeomCount();
 

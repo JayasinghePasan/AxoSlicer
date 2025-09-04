@@ -1,6 +1,12 @@
 #pragma once
 #include "DirectXMath.h"
 
+enum class ProjectionMode
+{
+    Perspective = 0,
+    Orthographic = 1
+};
+
 struct RenderState
 {
     float width;      // viewport width
@@ -11,6 +17,7 @@ struct RenderState
     float distance = 3.0f; // zoom or distance from target
 
     DirectX::XMFLOAT2 pan{ 0.f, 0.f }; // pan offset
+    ProjectionMode projection = ProjectionMode::Perspective;
 };
 
 

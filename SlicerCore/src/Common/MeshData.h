@@ -3,8 +3,9 @@
 struct Vertex
 {
     float x, y, z;
-    Vertex(float xx, float yy, float zz)
-        : x(xx), y(yy), z(zz)
+    float nx, ny, nz; // normals
+    Vertex(float xx, float yy, float zz, float nnx, float nny, float nnz)
+        : x(xx), y(yy), z(zz), nx(nnx), ny(nny), nz(nnz)
     {}
 };
 

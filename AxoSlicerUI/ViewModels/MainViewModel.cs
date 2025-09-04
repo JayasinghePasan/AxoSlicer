@@ -29,6 +29,7 @@ namespace AxoSlicer_Ui.ViewModels
         public void AddGeometry(string filepath)
         {
             GeometryManager.AddGeometry(filepath);
+            _nativeMainView?.resetView();
         }
     }
 }

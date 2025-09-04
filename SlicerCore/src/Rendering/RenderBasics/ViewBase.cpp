@@ -116,14 +116,20 @@ void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
 
     // Camera from your yaw/pitch/distance/pan
     XMMATRIX rot = XMMatrixRotationRollPitchYaw(rs.pitch, rs.yaw, 0.0f);
-    XMVECTOR eye = XMVector3TransformCoord(XMVectorSet(0, 0, -rs.distance, 1), rot) + XMVectorSet(rs.pan.x, rs.pan.y, 0, 0);
+    float viewDist = (rs.projection == ProjectionMode::Perspective) ? rs.distance : 5.0f;
+    XMVECTOR eye = XMVector3TransformCoord(XMVectorSet(0, 0, -viewDist, 1), rot) + XMVectorSet(rs.pan.x, rs.pan.y, 0, 0);
     XMVECTOR at = XMVectorSet(rs.pan.x, rs.pan.y, 0, 0);
     XMVECTOR up = XMVector3TransformNormal(XMVectorSet(0, 1, 0, 0), rot);
     XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
 
-    // IMPORTANT: fix integer division here
+    // Projection
     float aspect = (rs.height > 0) ? (float)rs.width / (float)rs.height : 1.0f;
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, aspect, 0.01f, 100.0f);
+    XMMATRIX proj;
+    if (rs.projection == ProjectionMode::Perspective)
+        proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, aspect, 0.01f, 100.0f);
+    else
+        proj = XMMatrixOrthographicLH(2.f * aspect * rs.distance, 2.f * rs.distance, 0.01f, 100.0f);
+
 
     // If HLSL is row_major, do NOT transpose; otherwise transpose here:
     mvpCB cb{};

@@ -126,6 +126,26 @@ int MainView::GeomCount()
     return geomCount;
 }
 
+HRESULT __stdcall MainView::resetView()
+{
+    renderState.yaw = 0.0f;
+    renderState.pitch = 0.0f;
+    renderState.pan = { 0.f, 0.f };
+    renderState.distance = (renderState.projection == ProjectionMode::Perspective) ? 3.0f : 1.0f;
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::setProjection(int mode)
+{
+    renderState.projection = (mode == 0) ? ProjectionMode::Perspective : ProjectionMode::Orthographic;
+    renderState.distance = (renderState.projection == ProjectionMode::Perspective) ? 3.0f : 1.0f;
+    return S_OK;
+}
+
+
+
+
+
 
 
 void InitRenderDocAPI()
