@@ -97,51 +97,65 @@ void ViewBase::createMVPCBuffer()
 
 void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
 {
-
     XMFLOAT3 sMin(globalBB.minX, globalBB.minY, globalBB.minZ);
     XMFLOAT3 sMax(globalBB.maxX, globalBB.maxY, globalBB.maxZ);
 
-    XMVECTOR minV = XMLoadFloat3(reinterpret_cast<XMFLOAT3*>(&sMin));
-    XMVECTOR maxV = XMLoadFloat3(reinterpret_cast<XMFLOAT3*>(&sMax));
-    XMVECTOR center = (minV + maxV) * 0.5f;
-    XMVECTOR extent = XMVectorMax(maxV - minV, XMVectorReplicate(1e-6f));
+    XMVECTOR vmin = XMLoadFloat3(&sMin);
+    XMVECTOR vmax = XMLoadFloat3(&sMax);
+    XMVECTOR centerV = (vmin + vmax) * 0.5f;        
 
-    float maxExtent = *std::max_element(
-        std::begin(std::initializer_list<float>{ XMVectorGetX(extent), XMVectorGetY(extent), XMVectorGetZ(extent) }),
-        std::end(std::initializer_list<float>{ XMVectorGetX(extent), XMVectorGetY(extent), XMVectorGetZ(extent) })
-    );
+    float cx = XMVectorGetX(centerV);
+    float cy = XMVectorGetY(centerV);
+    float cz = XMVectorGetZ(centerV);
 
-    // Normalize scene to ~[-1,1] to make the camera easy
-    XMMATRIX scene = XMMatrixScaling(2.f / maxExtent, 2.f / maxExtent, 2.f / maxExtent) * XMMatrixTranslation(-XMVectorGetX(center), -XMVectorGetY(center), -XMVectorGetZ(center));
+    XMVECTOR diagV = vmax - vmin;                      // bbox diagonal
+    float dx = XMVectorGetX(diagV);
+    float dy = XMVectorGetY(diagV);
+    float dz = XMVectorGetZ(diagV);
+    float R = 0.5f * std::sqrt(dx * dx + dy * dy + dz * dz); // bounding-sphere radius
+    R = max(R, 1e-4f);
 
-    // Camera from your yaw/pitch/distance/pan
-    XMMATRIX rot = XMMatrixRotationRollPitchYaw(rs.pitch, rs.yaw, 0.0f);
-    float viewDist = (rs.projection == ProjectionMode::Perspective) ? rs.distance : 5.0f;
-    XMVECTOR eye = XMVector3TransformCoord(XMVectorSet(0, 0, -viewDist, 1), rot) + XMVectorSet(rs.pan.x, rs.pan.y, 0, 0);
-    XMVECTOR at = XMVectorSet(rs.pan.x, rs.pan.y, 0, 0);
-    XMVECTOR up = XMVector3TransformNormal(XMVectorSet(0, 1, 0, 0), rot);
-    XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
+    XMMATRIX M_center = XMMatrixTranslation(-XMVectorGetX(centerV), -XMVectorGetY(centerV), -XMVectorGetZ(centerV));
+    XMMATRIX M_rot = XMMatrixRotationRollPitchYaw(rs.pitch, rs.yaw, 0.0f);
+    XMMATRIX M_pan = XMMatrixTranslation(-rs.pan.x - cx, -rs.pan.y - cy, -rs.pan.z - cz);
+    XMMATRIX M = M_pan * M_rot * M_center;   
 
-    // Projection
-    float aspect = (rs.height > 0) ? (float)rs.width / (float)rs.height : 1.0f;
-    XMMATRIX proj;
+    // VIEW 
+    float d = 3 * R - rs.distance;
+
+    XMVECTOR eye = XMVectorSet(0, 0, -d, 1);       
+    XMVECTOR at = XMVectorSet(-cx, -cy, -cz, 0);
+    XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+    XMMATRIX V = XMMatrixLookAtLH(eye, at, up);
+
+    // PROJECTION 
+    float aspect = (rs.height > 0) ? float(rs.width) / float(rs.height) : 1.0f;
+    XMMATRIX P;
+
     if (rs.projection == ProjectionMode::Perspective)
-        proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, aspect, 0.01f, 100.0f);
+    {
+        float fovY = (rs.fovY > 0.f) ? rs.fovY : XM_PIDIV4;
+        P = XMMatrixPerspectiveFovLH(fovY, aspect, 0.01f, 1000.0f);
+    }
     else
-        proj = XMMatrixOrthographicLH(2.f * aspect * rs.distance, 2.f * rs.distance, 0.01f, 100.0f);
+    {
+        float halfH = max(rs.distance, 0.01f);
+        float halfW = halfH * aspect;
+        P = XMMatrixOrthographicLH(2.f * halfW, 2.f * halfH, 0.01f, 1000.0f);
+    }
 
-
-    // If HLSL is row_major, do NOT transpose; otherwise transpose here:
+    // upload MVP
     mvpCB cb{};
-    XMStoreFloat4x4(&cb.MVP, XMMatrixTranspose(scene * view * proj));
+    XMMATRIX MVP = M * V * P;
+    DirectX::XMStoreFloat4x4(&cb.MVP, XMMatrixTranspose(MVP));
 
-    // Update CB
     D3D11_MAPPED_SUBRESOURCE mapped{};
     Direct3D::context->Map(m_cbMVP.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
     memcpy(mapped.pData, &cb, sizeof(cb));
     Direct3D::context->Unmap(m_cbMVP.Get(), 0);
 
-    // Bind to VS slot b0
     ID3D11Buffer* cbuffers[] = { m_cbMVP.Get() };
     Direct3D::context->VSSetConstantBuffers(0, 1, cbuffers);
+
 }
+

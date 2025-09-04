@@ -33,4 +33,9 @@ struct BoundingBox
         if (other.maxY > maxY) maxY = other.maxY;
         if (other.maxZ > maxZ) maxZ = other.maxZ;
     }
+
+    Vector3 getCenter() const
+    {
+        return Vector3((minX + maxX) * 0.5f, (minY + maxY) * 0.5f, (minZ + maxZ) * 0.5f);
+    }
 };

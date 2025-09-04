@@ -92,30 +92,39 @@ HRESULT __stdcall MainView::getSurface(void** ppSurface)
 HRESULT __stdcall MainView::setGeometryManager(iGeometryManager* geomManger)
 {
     geometryManager = geomManger;
+    resetView();
     return S_OK;
 }
 
 HRESULT __stdcall MainView::zoom(float delta)
 {
-    renderState.distance *= (1.0f - delta * 0.001f);
-    if (renderState.distance < 0.1f) renderState.distance = 0.1f;
+    renderState.distance *= (1.0f - delta * 0.002f);
+    if (renderState.distance < 0.01f) 
+        renderState.distance = 0.01f;
     return S_OK;
 }
 
 HRESULT __stdcall MainView::rotate(float dx, float dy)
 {
-    renderState.yaw += dx * 0.005f;
-    renderState.pitch += dy * 0.005f;
+    renderState.yaw -= dx * 0.005f;
+    renderState.pitch -= dy * 0.005f;
     const float limit = DirectX::XM_PIDIV2 - 0.01f;
-    if (renderState.pitch >  limit) renderState.pitch = limit;
-    if (renderState.pitch < -limit) renderState.pitch = -limit;
+    if (renderState.pitch >  limit) 
+        renderState.pitch = limit;
+    if (renderState.pitch < -limit) 
+        renderState.pitch = -limit;
     return S_OK;
 }
 
 HRESULT __stdcall MainView::pan(float dx, float dy)
 {
-    renderState.pan.x += dx * 0.002f;
-    renderState.pan.y += dy * 0.002f;
+    XMMATRIX rot = XMMatrixRotationRollPitchYaw(renderState.pitch, renderState.yaw, 0.0f);
+    XMVECTOR right = XMVector3TransformNormal(XMVectorSet(1, 0, 0, 0), rot);
+    XMVECTOR up = XMVector3TransformNormal(XMVectorSet(0, 1, 0, 0), rot);
+    XMVECTOR move = XMVectorScale(right, -dx * 0.002f) + XMVectorScale(up, dy * 0.002f);
+    XMVECTOR pan = XMLoadFloat3(&renderState.pan);
+    pan += move;
+    XMStoreFloat3(&renderState.pan, pan);
     return S_OK;
 }
 
@@ -129,16 +138,16 @@ int MainView::GeomCount()
 HRESULT __stdcall MainView::resetView()
 {
     renderState.yaw = 0.0f;
-    renderState.pitch = 0.0f;
-    renderState.pan = { 0.f, 0.f };
-    renderState.distance = (renderState.projection == ProjectionMode::Perspective) ? 3.0f : 1.0f;
+    renderState.pitch = 0.0f; 
+    renderState.pan = { 0.f, 0.f, 0.f };
+    renderState.distance = (renderState.projection == ProjectionMode::Perspective) ? 2.0f : 1.0f;
     return S_OK;
 }
 
 HRESULT __stdcall MainView::setProjection(int mode)
 {
     renderState.projection = (mode == 0) ? ProjectionMode::Perspective : ProjectionMode::Orthographic;
-    renderState.distance = (renderState.projection == ProjectionMode::Perspective) ? 3.0f : 1.0f;
+    renderState.distance = (renderState.projection == ProjectionMode::Perspective) ? 2.0f : 1.0f;
     return S_OK;
 }
 

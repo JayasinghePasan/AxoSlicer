@@ -9,6 +9,14 @@ struct Vertex
     {}
 };
 
+struct Vector3
+{
+    float x, y, z;
+    Vector3(float xx, float yy, float zz)
+        : x(xx), y(yy), z(zz)
+    {}
+};
+
 struct Triangle
 {
     float normal[3];
