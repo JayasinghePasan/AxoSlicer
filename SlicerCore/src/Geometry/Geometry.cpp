@@ -118,6 +118,9 @@ HRESULT Geometry::LoadFromBuffer(const void* buffer, size_t length)
 
 HRESULT __stdcall Geometry::Render()
 {
+    if (!visible) 
+        return S_OK;
+
     if (!context || !vertexBuffer)
         return E_FAIL;
 
@@ -138,6 +141,7 @@ HRESULT __stdcall Geometry::Render()
     context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
     context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     context->Draw(static_cast<UINT>(trianglesCount * 3), 0);
+    return S_OK;
 }
 
 HRESULT __stdcall Geometry::GetGuid(GUID& guid)
@@ -198,6 +202,11 @@ void Geometry::UploadToGPUBuffers()
     trianglesCount = (UINT)triangles.size();
     triangles.clear();
     return;
+}
+
+void Geometry::SetVisibility(bool vis)
+{
+    visible = vis;
 }
 
 HRESULT Geometry::GetBoundingBox(BoundingBox& box)

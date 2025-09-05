@@ -48,7 +48,12 @@ HRESULT __stdcall MainView::render()
     {
         ID3D11RenderTargetView* rtv = m_renderTargetView.Get();
         Direct3D::context->OMSetRenderTargets(1, &rtv, nullptr);
+        ID3D11DepthStencilView* dsv = m_depthStencilView.Get();
+        Direct3D::context->OMSetRenderTargets(1, &rtv, dsv);
         Direct3D::context->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
+        if (dsv)
+            Direct3D::context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+        Direct3D::context->RSSetState(m_rasterizerState.Get());
     }
 
     // rendering the geometries
@@ -123,9 +128,9 @@ HRESULT __stdcall MainView::rotate(float dx, float dy)
     renderState.yaw += dx * 0.005f;
     renderState.pitch += dy * 0.005f;
     const float limit = DirectX::XM_PIDIV2 - 0.01f;
-    if (renderState.pitch >  limit) 
+    if (renderState.pitch >  limit)
         renderState.pitch = limit;
-    if (renderState.pitch < -limit) 
+    if (renderState.pitch < -limit)
         renderState.pitch = -limit;
     return S_OK;
 }
@@ -147,11 +152,6 @@ int MainView::GeomCount()
     int geomCount = 0;
     geometryManager->getGeometryCount(geomCount);
     return geomCount;
-}
-
-void MainView::InitializeRenderComponents()
-{
-
 }
 
 HRESULT __stdcall MainView::resetView()

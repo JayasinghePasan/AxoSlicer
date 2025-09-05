@@ -16,5 +16,6 @@ namespace AxoSlicer_Ui.Interop
         void RenderGeometries();
         void GetGlobalBoundingBox(out BoundingBox box);
         void getGeometryCount(out int count);
+        void SetVisibility(Guid geometryID, bool visible);
     }
 }

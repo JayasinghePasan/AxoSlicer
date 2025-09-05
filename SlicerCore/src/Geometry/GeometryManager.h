@@ -15,8 +15,10 @@ public:
 	HRESULT __stdcall RenderGeometries() override;
 	HRESULT __stdcall GetGlobalBoundingBox(BoundingBox& box) override;
 	HRESULT __stdcall getGeometryCount(int& count) override;
+	HRESULT __stdcall SetVisibility(GUID geometryID, BOOL visible);
 
 private:
 	void RecalcualteBoundingBox();
+	
 
 };

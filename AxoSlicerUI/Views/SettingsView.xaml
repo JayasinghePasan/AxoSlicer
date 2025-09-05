@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AxoSlicer_Ui"
+             xmlns:utils="clr-namespace:AxoSlicer_Ui.Utilities"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Background="LightGray">
@@ -11,6 +12,22 @@
         <TextBlock Text="Settings" Margin="10" HorizontalAlignment="Center" />
         <Button Content="Load STL" Width="120" Margin="0 10 0 5" Command="{Binding OpenSTL}" />
         <CheckBox Content="Orthographic View" IsChecked="{Binding IsOrthographic}" Margin="0 10 0 5" HorizontalAlignment="Center" />
-        <TextBlock Text="{Binding filepath}" TextWrapping="Wrap" Margin="0 0 0 5"/>
+
+        <ListBox ItemsSource="{Binding Geometries}" Margin="5" Height="100">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding filepath}" Width="120"/>
+                        <Button Content="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Command="{Binding DataContext.ToggleVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}" Width="60" Margin="5,0"/>
+                        <Button Content="Delete"
+                                Command="{Binding DataContext.DeleteGeometry, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}" Width="60"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
     </StackPanel>
 </UserControl>

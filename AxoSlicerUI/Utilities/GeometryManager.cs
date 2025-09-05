@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AxoSlicer_Ui.Interop;
+using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using AxoSlicer_Ui.Interop;
-using AxoSlicer_Ui.ViewModels;
 
 namespace AxoSlicer_Ui.Utilities
 {
     internal class GeometryManager
     {
-        List<Geometry> geometries;
+        ObservableCollection<Geometry> geometries;
         iGeometryManager nativeGeometryManager = null;
 
         public GeometryManager(iGeometryManager nativeManager)
         {
-            this.geometries = new List<Geometry>();
+            this.geometries = new ObservableCollection<Geometry>();
             this.nativeGeometryManager = nativeManager;
         }
+
+        public ObservableCollection<Geometry> Geometries => geometries;
 
         public void AddGeometry(string filePath)
         {
@@ -50,17 +48,21 @@ namespace AxoSlicer_Ui.Utilities
 
         public void RemoveGeometry(Guid geometryId)
         {
-            foreach (Geometry geometry in geometries)
+            var geometry = geometries.FirstOrDefault(g => g.geometryId == geometryId);
+            if (geometry != null)
             {
-                if (geometry.geometryId == geometryId)
-                {
-                    // remove from back end
-                    nativeGeometryManager.RemoveGeometry(geometryId);
+                nativeGeometryManager.RemoveGeometry(geometryId);
+                geometries.Remove(geometry);
+            }
+        }
 
-                    // remove from front end
-                    geometries.Remove(geometry);
-                    return;
-                }
+        public void ToggleVisibility(Guid geometryId)
+        {
+            var geometry = geometries.FirstOrDefault(g => g.geometryId == geometryId);
+            if (geometry != null)
+            {
+                geometry.IsVisible = !geometry.IsVisible;
+                nativeGeometryManager.SetVisibility(geometryId, geometry.IsVisible);
             }
         }
 
