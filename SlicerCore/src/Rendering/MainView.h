@@ -30,5 +30,4 @@ public:
 	HRESULT __stdcall setProjection(int mode) override;
 
 	int GeomCount();
-	void InitializeRenderComponents();
 };

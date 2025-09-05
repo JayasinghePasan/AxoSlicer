@@ -4,5 +4,6 @@ EXPORTS
 	createMainView
 	createGeometryManager
 	createGeometry
+	createViewCube
 
 

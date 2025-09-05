@@ -17,6 +17,7 @@ void ViewBase::releaseResources()
     m_renderTargetView.Reset();
     m_depthStencilView.Reset();
     m_sharedSurface.Reset();
+    m_rasterizerState.Reset();
     m_sharedTextureHandle = nullptr;
 }
 
@@ -50,11 +51,38 @@ HRESULT ViewBase::createResources(UINT width, UINT height)
     vp.Width = static_cast<float>(width);
     vp.Height = static_cast<float>(height);
     vp.MinDepth = 0.0f;  vp.MaxDepth = 1.0f;
-
     Direct3D::context->RSSetViewports(1, &vp);
 
+    // depth buffer
+    D3D11_TEXTURE2D_DESC depthDesc = {};
+    depthDesc.Width = width;
+    depthDesc.Height = height;
+    depthDesc.MipLevels = 1;
+    depthDesc.ArraySize = 1;
+    depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthDesc.SampleDesc.Count = 1;
+    depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthTex;
+    HRESULT hr = device11->CreateTexture2D(&depthDesc, nullptr, &depthTex);
+    if (FAILED(hr))
+        return hr;
+
+    hr = device11->CreateDepthStencilView(depthTex.Get(), nullptr, &m_depthStencilView);
+    if (FAILED(hr))
+        return hr;
+
+    D3D11_RASTERIZER_DESC rsDesc = {};
+    rsDesc.FillMode = D3D11_FILL_SOLID;
+    rsDesc.CullMode = D3D11_CULL_BACK;
+    rsDesc.DepthClipEnable = TRUE;
+    hr = device11->CreateRasterizerState(&rsDesc, &m_rasterizerState);
+    if (FAILED(hr))
+        return hr;
+    context->RSSetState(m_rasterizerState.Get());
+
     // Create the RTV
-    HRESULT hr = device11->CreateRenderTargetView(d3d11Tex.Get(), nullptr, &m_renderTargetView);
+    hr = device11->CreateRenderTargetView(d3d11Tex.Get(), nullptr, &m_renderTargetView);
     if (FAILED(hr)) 
         return hr;
 
@@ -116,7 +144,7 @@ void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
     R = max(R, 1e-4f);
 
     XMMATRIX M_center = XMMatrixTranslation(-XMVectorGetX(centerV), -XMVectorGetY(centerV), -XMVectorGetZ(centerV));
-    XMMATRIX M_rot = XMMatrixRotationRollPitchYaw(rs.pitch, rs.yaw, 0.0f);
+    XMMATRIX M_rot = XMMatrixRotationRollPitchYaw(rs.yaw, rs.pitch, 0.0f);
     XMMATRIX M_pan = XMMatrixTranslation(-rs.pan.x - cx, -rs.pan.y - cy, -rs.pan.z - cz);
     XMMATRIX M = M_pan * M_rot * M_center;   
 

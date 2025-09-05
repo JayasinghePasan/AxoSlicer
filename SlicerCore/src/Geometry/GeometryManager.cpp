@@ -1,4 +1,5 @@
 #pragma once
+#include "Geometry.h"
 #include "GeometryManager.h"
 #include "../pch.h"
 
@@ -77,5 +78,20 @@ void GeometryManager::RecalcualteBoundingBox()
         geom.second->GetBoundingBox(geomBox);
         globalBoundingBox.expandToInclude(geomBox);
     }
+}
+
+HRESULT __stdcall GeometryManager::SetVisibility(GUID geometryID, BOOL visible)
+{
+    auto it = geometryMap.find(geometryID);
+    if (it == geometryMap.end())
+        return E_FAIL;
+
+    Geometry* geomRaw = dynamic_cast<Geometry*>(it->second);
+    if (!geomRaw)
+        return E_FAIL;
+
+    geomRaw->SetVisibility(visible);
+    RecalcualteBoundingBox();
+    return S_OK;
 }
 

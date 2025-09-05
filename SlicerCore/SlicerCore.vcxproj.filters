@@ -18,9 +18,6 @@
     <ClInclude Include="src\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileIO\iModelLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\iRenderView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -28,9 +25,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Public\iGeometryManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\SlicerCoreAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Public\iMainView.h">
@@ -75,6 +69,12 @@
     <ClInclude Include="src\Utilities\BottomGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Public\iViewCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Geometry\ViewCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\MainView.cpp">
@@ -101,6 +101,9 @@
     <ClCompile Include="src\Utilities\BottomGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Geometry\ViewCube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def">
@@ -113,5 +116,6 @@
     <FxCompile Include="src\Rendering\Shaders\SimplePS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\GridVS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\GridPS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\ViewCubePickPS.hlsl" />
   </ItemGroup>
 </Project>

@@ -19,6 +19,7 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
     Microsoft::WRL::ComPtr<IDirect3DSurface9> m_sharedSurface;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
     HANDLE m_sharedTextureHandle = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbMVP;  // pass mvp matrix to shaders

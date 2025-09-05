@@ -12,6 +12,7 @@ public:
 
 	HRESULT LoadFromBuffer(const void* buffer, size_t length);
 	void UploadToGPUBuffers();
+	void SetVisibility(bool visible);
 
 private:
 	GUID geometryID;					// set when loading from the input read buffer
@@ -21,5 +22,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 
 	BoundingBox boundingBox;
+
+	bool visible = true;
 
 };

@@ -147,7 +147,7 @@ namespace AxoSlicer_Ui.Views
             if (CurrentMode == MouseMode.Navigate)
             {
                 if (_rotating)
-                    _mainView.rotate(dx, dy);
+                    MainViewModel.Instance.Rotate(dx, dy);
                 else if (_panning)
                     _mainView.pan(dx, dy);
             }

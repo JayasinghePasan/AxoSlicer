@@ -74,6 +74,8 @@ HRESULT BottomGrid::Render()
         ID3D11Buffer* vb = gridVertexBuffer.Get();
         context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
         context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        ID3D11Buffer* cb = gridCB.Get();
+        context->PSSetConstantBuffers(1, 1, &cb);
         context->Draw(6, 0);
     }
 
