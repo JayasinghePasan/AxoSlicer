@@ -2,6 +2,7 @@
 #include "../Misc/ComRoot.hpp"
 #include "../../Public/iMainView.h"
 #include "../../src/Rendering/RenderBasics/ViewBase.h"
+#include "../../src/Utilities/BottomGrid.h"
 #include <DirectXMath.h>
 
 class MainView : public ComRoot<iMainView>, public ViewBase 
@@ -11,6 +12,8 @@ private:
 	RenderState renderState;
 	bool renderdocLoaded = false;
 	
+	BottomGrid grid;
+	BoundingBox bbox; // this is used to check if the geomManager bbox has changed or not, if changed, InitializeRenderComponents() will be called.
 
 public:
     // --- iRenderView Methods ---
@@ -23,7 +26,9 @@ public:
 	HRESULT __stdcall zoom(float delta) override;
 	HRESULT __stdcall rotate(float dx, float dy) override;
 	HRESULT __stdcall pan(float dx, float dy) override;
+	HRESULT __stdcall resetView() override;
+	HRESULT __stdcall setProjection(int mode) override;
 
 	int GeomCount();
-
+	void InitializeRenderComponents();
 };

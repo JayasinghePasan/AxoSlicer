@@ -123,19 +123,15 @@ HRESULT __stdcall Geometry::Render()
 
     D3D11_INPUT_ELEMENT_DESC layout[] = 
     {
-        { 
-            "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 
-        }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    HRESULT hr = Direct3D::BindShadersFromCSO(
-        L"SimpleVS.cso",
-        L"SimplePS.cso",
-        layout, _countof(layout));
+    HRESULT hr = Direct3D::BindShadersFromCSO( L"SimpleVS.cso", L"SimplePS.cso", layout, _countof(layout));
 
     if (FAILED(hr))
         return hr;
-    UINT stride = sizeof(float) * 3;
+    UINT stride = sizeof(float) * 6;
     UINT offset = 0;
     ID3D11Buffer* vb = vertexBuffer.Get();
 
@@ -164,9 +160,24 @@ void Geometry::UploadToGPUBuffers()
 
     for (const Triangle& tri : triangles)
     {
-        vertices.push_back(Vertex(tri.v1[0], tri.v1[1], tri.v1[2]));
-        vertices.push_back(Vertex(tri.v2[0], tri.v2[1], tri.v2[2]));
-        vertices.push_back(Vertex(tri.v3[0], tri.v3[1], tri.v3[2]));
+        float ux = tri.v2[0] - tri.v1[0];
+        float uy = tri.v2[1] - tri.v1[1];
+        float uz = tri.v2[2] - tri.v1[2];
+        float vx = tri.v3[0] - tri.v1[0];
+        float vy = tri.v3[1] - tri.v1[1];
+        float vz = tri.v3[2] - tri.v1[2];
+        float nx = uy * vz - uz * vy;
+        float ny = uz * vx - ux * vz;
+        float nz = ux * vy - uy * vx;
+        float len = std::sqrt(nx * nx + ny * ny + nz * nz);
+        if (len > 0.0f)
+        {
+            nx /= len; ny /= len; nz /= len;
+        }
+
+        vertices.push_back(Vertex(tri.v1[0], tri.v1[1], tri.v1[2], nx, ny, nz));
+        vertices.push_back(Vertex(tri.v2[0], tri.v2[1], tri.v2[2], nx, ny, nz));
+        vertices.push_back(Vertex(tri.v3[0], tri.v3[1], tri.v3[2], nx, ny, nz));
     }
 
     D3D11_BUFFER_DESC bd = {};

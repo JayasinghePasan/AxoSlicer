@@ -72,6 +72,9 @@
     <ClInclude Include="src\Rendering\renderdoc_app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Utilities\BottomGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\MainView.cpp">
@@ -95,6 +98,9 @@
     <ClCompile Include="src\Geometry\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utilities\BottomGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def">
@@ -105,5 +111,7 @@
   <ItemGroup>
     <FxCompile Include="src\Rendering\Shaders\SimpleVS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\SimplePS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\GridVS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\GridPS.hlsl" />
   </ItemGroup>
 </Project>

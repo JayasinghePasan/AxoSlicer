@@ -29,6 +29,8 @@ namespace AxoSlicer_Ui.Interop
         int zoom(float delta);
         int rotate(float dx, float dy);
         int pan(float dx, float dy);
+        int resetView();
+        int setProjection(int mode);
     }
 
     public static class NativeMethods

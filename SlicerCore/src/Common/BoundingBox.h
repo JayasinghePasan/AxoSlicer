@@ -33,4 +33,31 @@ struct BoundingBox
         if (other.maxY > maxY) maxY = other.maxY;
         if (other.maxZ > maxZ) maxZ = other.maxZ;
     }
+
+    Vector3 getCenter() const
+    {
+        return Vector3((minX + maxX) * 0.5f, (minY + maxY) * 0.5f, (minZ + maxZ) * 0.5f);
+    }
+
+    BoundingBox& operator=(const BoundingBox& other) noexcept
+    {
+        if (this != &other)
+        {
+            minX = other.minX; minY = other.minY; minZ = other.minZ;
+            maxX = other.maxX; maxY = other.maxY; maxZ = other.maxZ;
+        }
+        return *this;
+    }
+
+    bool operator==(const BoundingBox& rhs) const noexcept
+    {
+        return minX == rhs.minX && minY == rhs.minY && minZ == rhs.minZ && maxX == rhs.maxX && maxY == rhs.maxY && maxZ == rhs.maxZ;
+    }
+
+    bool operator!=(const BoundingBox& rhs) const noexcept
+    {
+        return !(minX == rhs.minX && minY == rhs.minY && minZ == rhs.minZ && maxX == rhs.maxX && maxY == rhs.maxY && maxZ == rhs.maxZ);
+    }
+
+
 };

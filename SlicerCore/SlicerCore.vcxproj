@@ -101,6 +101,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utilities\BottomGrid.h" />
     <ClInclude Include="src\Rendering\renderdoc_app.h" />
     <ClInclude Include="src\Common\BoundingBox.h" />
     <ClInclude Include="src\Common\GuidMap.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="src\Rendering\RenderBasics\ViewBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Utilities\BottomGrid.cpp" />
     <ClCompile Include="src\Geometry\Geometry.cpp" />
     <ClCompile Include="src\Geometry\GeometryManager.cpp" />
     <ClCompile Include="src\Misc\AtlModule.cpp" />
@@ -138,6 +140,14 @@
     <None Include="src\Rendering\Shaders\Common.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="src\Rendering\Shaders\GridPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\GridVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="src\Rendering\Shaders\SimplePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
