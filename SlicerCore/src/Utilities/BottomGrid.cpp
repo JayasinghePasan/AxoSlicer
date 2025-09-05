@@ -10,6 +10,7 @@ HRESULT BottomGrid::Initialize(BoundingBox& globalBB)
         return S_FALSE;
 
     Vector3 bbcenter = globalBB.getCenter();
+    origin = DirectX::XMFLOAT2(bbcenter.x, bbcenter.y);
 
     Vector3 verts[6] =
     {
@@ -39,6 +40,24 @@ HRESULT BottomGrid::Initialize(BoundingBox& globalBB)
 
     device11->CreateBlendState(&blendDesc, &blendState);
     context->OMSetBlendState(blendState.Get(), nullptr, 0xffffffff);
+
+    D3D11_BUFFER_DESC cbd{};
+    cbd.ByteWidth = sizeof(GridParams);
+    cbd.Usage = D3D11_USAGE_DYNAMIC;
+    cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    device11->CreateBuffer(&cbd, nullptr, &gridCB);
+
+    GridParams params;
+    params.spacing = 5.0f;
+    params.dpi = dpi;
+    params.origin = origin;
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    context->Map(gridCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    memcpy(mapped.pData, &params, sizeof(params));
+    context->Unmap(gridCB.Get(), 0);
+    ID3D11Buffer* cb = gridCB.Get();
+    context->PSSetConstantBuffers(1, 1, &cb);
 }
 
 HRESULT BottomGrid::Render()
@@ -59,4 +78,9 @@ HRESULT BottomGrid::Render()
     }
 
     return S_OK;
+}
+
+void BottomGrid::SetDpi(float dpiScale)
+{
+    dpi = dpiScale;
 }

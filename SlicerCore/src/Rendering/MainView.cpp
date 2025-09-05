@@ -90,6 +90,7 @@ HRESULT __stdcall MainView::resize(const int widthPixels, const int heightPixels
 {
     renderState.width  = widthPixels;
     renderState.height = heightPixels;
+    renderState.dpi = dpiScale;
     return createResources(widthPixels, heightPixels);
 }
 
@@ -120,8 +121,8 @@ HRESULT __stdcall MainView::zoom(float delta)
 
 HRESULT __stdcall MainView::rotate(float dx, float dy)
 {
-    renderState.yaw -= dx * 0.005f;
-    renderState.pitch -= dy * 0.005f;
+    renderState.yaw += dx * 0.005f;
+    renderState.pitch += dy * 0.005f;
     const float limit = DirectX::XM_PIDIV2 - 0.01f;
     if (renderState.pitch >  limit) 
         renderState.pitch = limit;
