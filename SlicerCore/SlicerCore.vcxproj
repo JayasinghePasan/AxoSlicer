@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -101,6 +101,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Public\iViewCube.h" />
     <ClInclude Include="src\Utilities\BottomGrid.h" />
     <ClInclude Include="src\Rendering\renderdoc_app.h" />
     <ClInclude Include="src\Common\BoundingBox.h" />
@@ -118,8 +119,8 @@
     <ClInclude Include="Public\iGeometry.h" />
     <ClInclude Include="Public\iGeometryManager.h" />
     <ClInclude Include="Public\iRenderView.h" />
-    <ClInclude Include="src\FileIO\iModelLoader.h" />
     <ClInclude Include="src\Rendering\RenderBasics\ViewBase.h" />
+    <ClInclude Include="src\Geometry\ViewCube.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Utilities\BottomGrid.cpp" />
@@ -133,6 +134,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Rendering\RenderBasics\ViewBase.cpp" />
+    <ClCompile Include="src\Geometry\ViewCube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def" />
@@ -154,6 +156,14 @@
     <FxCompile Include="src\Rendering\Shaders\SimpleVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\ViewCubePickPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\ViewCubePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
