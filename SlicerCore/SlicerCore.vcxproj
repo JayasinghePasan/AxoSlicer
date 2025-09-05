@@ -118,7 +118,6 @@
     <ClInclude Include="Public\iGeometry.h" />
     <ClInclude Include="Public\iGeometryManager.h" />
     <ClInclude Include="Public\iRenderView.h" />
-    <ClInclude Include="Public\SlicerCoreAPI.h" />
     <ClInclude Include="src\FileIO\iModelLoader.h" />
     <ClInclude Include="src\Rendering\RenderBasics\ViewBase.h" />
   </ItemGroup>

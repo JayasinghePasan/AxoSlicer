@@ -1,7 +1,6 @@
 #pragma once
 #include "MainView.h"
 #include "../pch.h"
-#include "../../Public/SlicerCoreAPI.h" 
 #include "../../src/Rendering/RenderBasics/Direct3D.h"
 #include "../Geometry/GeometryManager.h"
 

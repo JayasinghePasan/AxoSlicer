@@ -30,9 +30,6 @@
     <ClInclude Include="Public\iGeometryManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Public\SlicerCoreAPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\iMainView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
