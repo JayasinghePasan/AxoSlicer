@@ -1,4 +1,5 @@
 ﻿using AxoSlicer_Ui.Interop;
+using AxoSlicer_Ui.ViewModels;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -21,6 +22,7 @@ namespace AxoSlicer_Ui.Views
         {
             InitializeComponent();
             Loaded += OnLoaded;
+            Unloaded += (_, __) => MainViewModel.Instance.RotationChanged -= OnMainViewRotated;
             CompositionTarget.Rendering += OnRendering;
         }
 
@@ -30,6 +32,8 @@ namespace AxoSlicer_Ui.Views
             var hwnd = source.Handle;
             if (NativeMethods.createViewCube(hwnd, out _view) != 0)
                 return;
+
+            MainViewModel.Instance.RotationChanged += OnMainViewRotated;
 
             CubeHost.SizeChanged += OnHostSizeChanged;
             CubeHost.MouseDown += OnMouseDown;
@@ -81,8 +85,8 @@ namespace AxoSlicer_Ui.Views
                 _d3dimage.Lock();
                 _d3dimage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface);
                 _d3dimage.Unlock();
-                if (CubeImage.Source != _d3dimage)
-                    CubeImage.Source = _d3dimage;
+                if (ViewCubeImage.Source != _d3dimage)
+                    ViewCubeImage.Source = _d3dimage;
                 _surface = surface;
             }
         }
@@ -109,7 +113,7 @@ namespace AxoSlicer_Ui.Views
             {
                 float dx = (float)(pos.X - _lastPos.X);
                 float dy = (float)(pos.Y - _lastPos.Y);
-                _view.rotate(dx, dy);
+                MainViewModel.Instance.Rotate(dx, dy);
             }
             else
             {
@@ -118,6 +122,11 @@ namespace AxoSlicer_Ui.Views
                     _view.setHighlight(face);
             }
             _lastPos = pos;
+        }
+
+        private void OnMainViewRotated(float dx, float dy)
+        {
+            _view?.rotate(dx, dy);
         }
     }
 }

@@ -33,7 +33,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <views:ViewCubeView Width="120" Height="120" Margin="10" />
+        <views:ViewCubeView Width="240" Height="240" Margin="10" />
 
     </StackPanel>
 </UserControl>

@@ -94,6 +94,8 @@ HRESULT ViewCube::initializeCube()
     if (FAILED(hr))
         return hr;
 
+    createMVPCBuffer();
+
     initialized = true;
     return S_OK;
 }
@@ -102,6 +104,9 @@ HRESULT __stdcall ViewCube::render()
 {
     if (!initialized)
         initializeCube();
+
+    BoundingBox bb(-1.f, -1.f, -1.f, 1.f, 1.f, 1.f);
+    UpdateMVPCBuffer(bb, renderState);
 
     // Save current render targets and viewport to avoid affecting other views
     CComPtr<ID3D11RenderTargetView> oldRTV;
@@ -131,7 +136,7 @@ HRESULT __stdcall ViewCube::render()
         {"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,12,D3D11_INPUT_PER_VERTEX_DATA,0}
     };
 
-    HRESULT hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"ViewCubePS.cso", layout, _countof(layout), &m_vs, &m_ps, &m_il);
+    HRESULT hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"SimplePS.cso", layout, _countof(layout), &m_vs, &m_ps, &m_il);
     if (FAILED(hr))
         return hr;
 
@@ -162,7 +167,18 @@ HRESULT __stdcall ViewCube::resize(const int widthPixels, const int heightPixels
     renderState.width = (float)widthPixels;
     renderState.height = (float)heightPixels;
     renderState.dpi = dpiScale;
-    return createResources(widthPixels, heightPixels);
+    renderState.distance = 2.0f;
+    
+    HRESULT hr = createResources(widthPixels, heightPixels);
+    if (SUCCEEDED(hr))
+    {
+        D3D11_RASTERIZER_DESC rsDesc = {};
+        rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+        rsDesc.CullMode = D3D11_CULL_NONE;
+        rsDesc.DepthClipEnable = FALSE;
+        hr = Direct3D::device11->CreateRasterizerState(&rsDesc, &m_rasterizerState);
+    }
+    return hr;
 }
 
 HRESULT __stdcall ViewCube::getSurface(void** ppSurface)
