@@ -35,6 +35,16 @@ namespace AxoSlicer_Ui.ViewModels
                 if (g is Utilities.Geometry geom)
                     MainViewModel.Instance.GeometryManager.ToggleVisibility(geom.geometryId);
             });
+
+            MainViewModel.Instance.GeometryManagerInitialized += (s, e) =>
+            {
+                OnPropertyChanged(nameof(Geometries));
+            };
+
+            if (MainViewModel.Instance.GeometryManager != null)
+            {
+                OnPropertyChanged(nameof(Geometries));
+            }
         }
 
         private void OpenGeometry()
