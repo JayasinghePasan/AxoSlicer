@@ -123,7 +123,7 @@ void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
     // VIEW 
     float d = 3 * R - rs.distance;
 
-    XMVECTOR eye = XMVectorSet(0, 0, -d, 1);       
+    XMVECTOR eye = XMVectorSet(-d, 0, 0, 1);
     XMVECTOR at = XMVectorSet(-cx, -cy, -cz, 0);
     XMVECTOR up = XMVectorSet(0, 1, 0, 0);
     XMMATRIX V = XMMatrixLookAtLH(eye, at, up);

@@ -44,7 +44,7 @@ HRESULT __stdcall MainView::render()
 
 
     // setting the background
-    float clearColor[] = { 0.8f, 0.9f, 0.9f, 1.0f };
+    float clearColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     if (Direct3D::context && m_renderTargetView)
     {
         ID3D11RenderTargetView* rtv = m_renderTargetView.Get();
@@ -62,8 +62,22 @@ HRESULT __stdcall MainView::render()
     // update model view proj
     BoundingBox bb;
     geometryManager->GetGlobalBoundingBox(bb);
+
+    if (bbox != bb)
+    {
+        grid.Initialize(bb);
+        bbox = bb;
+    }
+
     UpdateMVPCBuffer(bb, renderState);
+
+    // 1 - render bottom grid
+    grid.Render();
+
+    // 2 - render geometries
     geometryManager->RenderGeometries();
+
+    // 3 - render view cube
 
     Direct3D::context->Flush();
 
@@ -133,6 +147,11 @@ int MainView::GeomCount()
     int geomCount = 0;
     geometryManager->getGeometryCount(geomCount);
     return geomCount;
+}
+
+void MainView::InitializeRenderComponents()
+{
+
 }
 
 HRESULT __stdcall MainView::resetView()
