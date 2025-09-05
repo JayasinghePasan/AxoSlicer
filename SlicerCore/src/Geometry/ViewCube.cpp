@@ -94,28 +94,6 @@ HRESULT ViewCube::initializeCube()
     if (FAILED(hr))
         return hr;
 
-    D3D11_BUFFER_DESC cbd = {};
-    cbd.Usage = D3D11_USAGE_DEFAULT;
-    cbd.ByteWidth = 16;
-    cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    hr = device11->CreateBuffer(&cbd, nullptr, &m_cbState);
-    if (FAILED(hr))
-        return hr;
-
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        {"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
-        {"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,12,D3D11_INPUT_PER_VERTEX_DATA,0}
-    };
-
-    hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"ViewCubePS.cso", layout, _countof(layout), &m_vs, &m_ps, &m_il);
-    if (FAILED(hr))
-        return hr;
-
-    hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"ViewCubePickPS.cso", layout, _countof(layout), nullptr, &m_psPick, nullptr);
-    if (FAILED(hr))
-        return hr;
-
     initialized = true;
     return S_OK;
 }
@@ -124,6 +102,15 @@ HRESULT __stdcall ViewCube::render()
 {
     if (!initialized)
         initializeCube();
+
+    // Save current render targets and viewport to avoid affecting other views
+    CComPtr<ID3D11RenderTargetView> oldRTV;
+    CComPtr<ID3D11DepthStencilView> oldDSV;
+    Direct3D::context->OMGetRenderTargets(1, &oldRTV, &oldDSV);
+
+    UINT num = 1;
+    D3D11_VIEWPORT oldVp;
+    Direct3D::context->RSGetViewports(&num, &oldVp);
 
     float clearColor[] = { 0.8f, 0.8f, 0.8f, 1.0f };
     if (Direct3D::context && m_renderTargetView)
@@ -134,7 +121,19 @@ HRESULT __stdcall ViewCube::render()
         if (m_depthStencilView)
             Direct3D::context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
         Direct3D::context->RSSetState(m_rasterizerState.Get());
+        D3D11_VIEWPORT vp = { 0.0f, 0.0f, renderState.width, renderState.height, 0.0f, 1.0f };
+        Direct3D::context->RSSetViewports(1, &vp);
     }
+
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        {"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
+        {"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,12,D3D11_INPUT_PER_VERTEX_DATA,0}
+    };
+
+    HRESULT hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"ViewCubePS.cso", layout, _countof(layout), &m_vs, &m_ps, &m_il);
+    if (FAILED(hr))
+        return hr;
 
     UINT stride = sizeof(CubeVertex);
     UINT offset = 0;
@@ -147,12 +146,14 @@ HRESULT __stdcall ViewCube::render()
     Direct3D::context->VSSetShader(m_vs.Get(), nullptr, 0);
     Direct3D::context->PSSetShader(m_ps.Get(), nullptr, 0);
 
-    Direct3D::context->UpdateSubresource(m_cbState.Get(), 0, nullptr, &highlightFace, 0, 0);
-    ID3D11Buffer* cbs[] = { m_cbState.Get() };
-    Direct3D::context->PSSetConstantBuffers(1, 1, cbs);
-
     Direct3D::context->DrawIndexed(36, 0, 0);
     Direct3D::context->Flush();
+
+    // Restore previous render targets and viewport
+    ID3D11RenderTargetView* rtvRestore = oldRTV.p;
+    Direct3D::context->OMSetRenderTargets(1, &rtvRestore, oldDSV.p);
+    Direct3D::context->RSSetViewports(1, &oldVp);
+
     return S_OK;
 }
 
@@ -183,66 +184,10 @@ HRESULT __stdcall ViewCube::rotate(float dx, float dy)
 
 HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 {
-    if (!faceId)
-        return E_POINTER;
-    *faceId = -1;
-    if (!m_renderTargetView)
-        return E_FAIL;
-
-    UINT num = 1;
-    D3D11_VIEWPORT oldVp;
-    Direct3D::context->RSGetViewports(&num, &oldVp);
-
-    D3D11_VIEWPORT vp = { (float)x, (float)y, 1.0f, 1.0f, 0.0f, 1.0f };
-    Direct3D::context->RSSetViewports(1, &vp);
-
-
-    UINT stride = sizeof(CubeVertex);
-    UINT offset = 0;
-    ID3D11Buffer* vb = m_vertexBuffer.Get();
-    Direct3D::context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
-    Direct3D::context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-    Direct3D::context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    Direct3D::context->IASetInputLayout(m_il.Get());
-    Direct3D::context->VSSetShader(m_vs.Get(), nullptr, 0);
-    Direct3D::context->PSSetShader(m_psPick.Get(), nullptr, 0);
-
-    Direct3D::context->DrawIndexed(36, 0, 0);
-    Direct3D::context->Flush();
-
-    CComPtr<ID3D11Resource> res;
-    m_renderTargetView->GetResource(&res);
-    CComPtr<ID3D11Texture2D> tex;
-    res->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex);
-
-    CComPtr<ID3D11Texture2D> staging;
-    D3D11_TEXTURE2D_DESC sd = {};
-    sd.Width = 1; sd.Height = 1; sd.MipLevels = 1; sd.ArraySize = 1;
-    sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    sd.SampleDesc.Count = 1;
-    sd.Usage = D3D11_USAGE_STAGING;
-    sd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-    device11->CreateTexture2D(&sd, nullptr, &staging);
-
-    D3D11_BOX box{ (UINT)x, (UINT)y, 0, (UINT)x + 1, (UINT)y + 1, 1 };
-    Direct3D::context->CopySubresourceRegion(staging.p, 0, 0, 0, 0, tex.p, 0, &box);
-    Direct3D::context->Flush();
-
-    D3D11_MAPPED_SUBRESOURCE mapped;
-    if (SUCCEEDED(Direct3D::context->Map(staging.p, 0, D3D11_MAP_READ, 0, &mapped)))
-    {
-        unsigned char red = ((unsigned char*)mapped.pData)[2];
-        Direct3D::context->Unmap(staging.p, 0);
-        if (red > 0)
-            *faceId = red - 1;
-    }
-
-    Direct3D::context->RSSetViewports(1, &oldVp);
-    return S_OK;
+    return E_NOTIMPL;
 }
 
 HRESULT __stdcall ViewCube::setHighlight(int faceId)
 {
-    highlightFace = faceId;
-    return S_OK;
+    return E_NOTIMPL;
 }

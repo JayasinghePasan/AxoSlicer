@@ -8,15 +8,12 @@ class ViewCube : public ComRoot<iViewCube>, public ViewBase
 {
 private:
     RenderState renderState;
-    int highlightFace = -1;
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
-    Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbState;
 
     Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vs;
     Microsoft::WRL::ComPtr<ID3D11PixelShader>  m_ps;
-    Microsoft::WRL::ComPtr<ID3D11PixelShader>  m_psPick;
     Microsoft::WRL::ComPtr<ID3D11InputLayout>  m_il;
 
     bool initialized = false;

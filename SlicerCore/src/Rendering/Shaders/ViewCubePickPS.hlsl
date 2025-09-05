@@ -11,7 +11,7 @@ float4 main(PSInput input) : SV_TARGET
     float3 lightDir2 = normalize(float3(-0.5f, -1.0f, 0.5f));
     float diff = saturate(dot(n, lightDir1)) + saturate(dot(n, lightDir2));
     diff *= 0.5f;
-    float3 baseColor = float3(0.7f, 0.7f, 0.7f);
+    float3 baseColor = float3(1.0f, 1.0f, 0.0f);
     float3 color = baseColor * (0.3f + 0.7f * diff);
     return float4(color, 1.0f);
 }
