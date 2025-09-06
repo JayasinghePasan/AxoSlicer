@@ -27,6 +27,7 @@ public:
 
     // iViewCube
     HRESULT __stdcall rotate(float dx, float dy) override;
-    HRESULT __stdcall pick(int x, int y, int* faceId) override;
+    HRESULT __stdcall pick(int x, int y, ViewMode mode) override;
     HRESULT __stdcall setHighlight(int faceId) override;
+    HRESULT __stdcall resetView() override;
 };

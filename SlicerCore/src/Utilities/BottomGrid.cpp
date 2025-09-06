@@ -58,6 +58,8 @@ HRESULT BottomGrid::Initialize(BoundingBox& globalBB)
     context->Unmap(gridCB.Get(), 0);
     ID3D11Buffer* cb = gridCB.Get();
     context->PSSetConstantBuffers(1, 1, &cb);
+
+    return S_OK;
 }
 
 HRESULT BottomGrid::Render()

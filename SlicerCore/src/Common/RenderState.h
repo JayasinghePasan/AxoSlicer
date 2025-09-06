@@ -25,3 +25,13 @@ struct RenderState
     DirectX::XMFLOAT3 pan{ 0.f, 0.f, 0.f }; // pan offset
     ProjectionMode projection = ProjectionMode::Perspective;
 };
+
+enum class ViewMode
+{
+    Front,
+    Back,
+    Top,
+    Bottom,
+    Left,
+    Right
+};

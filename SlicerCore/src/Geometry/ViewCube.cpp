@@ -193,12 +193,17 @@ HRESULT __stdcall ViewCube::getSurface(void** ppSurface)
 
 HRESULT __stdcall ViewCube::rotate(float dx, float dy)
 {
-    renderState.yaw += dx * 0.01f;
-    renderState.pitch += dy * 0.01f;
+    renderState.yaw += dx * 0.005f;
+    renderState.pitch += dy * 0.005f;
+    const float limit = DirectX::XM_PIDIV2 - 0.01f;
+    if (renderState.pitch > limit)
+        renderState.pitch = limit;
+    if (renderState.pitch < -limit)
+        renderState.pitch = -limit;
     return S_OK;
 }
 
-HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
+HRESULT __stdcall ViewCube::pick(int x, int y, ViewMode mode)
 {
     return E_NOTIMPL;
 }
@@ -206,4 +211,11 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 HRESULT __stdcall ViewCube::setHighlight(int faceId)
 {
     return E_NOTIMPL;
+}
+
+HRESULT __stdcall ViewCube::resetView()
+{
+    renderState.yaw = 0.0f;
+    renderState.pitch = 0.0f;
+    return S_OK;
 }

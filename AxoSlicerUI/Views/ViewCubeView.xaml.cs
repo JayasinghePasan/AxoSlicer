@@ -22,7 +22,11 @@ namespace AxoSlicer_Ui.Views
         {
             InitializeComponent();
             Loaded += OnLoaded;
-            Unloaded += (_, __) => MainViewModel.Instance.RotationChanged -= OnMainViewRotated;
+            Unloaded += (_, __) =>
+            {
+                MainViewModel.Instance.RotationChanged -= OnMainViewRotated;
+                MainViewModel.Instance.ViewReset -= OnMainViewReset;
+            };
             CompositionTarget.Rendering += OnRendering;
         }
 
@@ -34,6 +38,7 @@ namespace AxoSlicer_Ui.Views
                 return;
 
             MainViewModel.Instance.RotationChanged += OnMainViewRotated;
+            MainViewModel.Instance.ViewReset += OnMainViewReset;
 
             CubeHost.SizeChanged += OnHostSizeChanged;
             CubeHost.MouseDown += OnMouseDown;
@@ -127,6 +132,11 @@ namespace AxoSlicer_Ui.Views
         private void OnMainViewRotated(float dx, float dy)
         {
             _view?.rotate(dx, dy);
+        }
+
+        private void OnMainViewReset()
+        {
+            _view?.resetView();
         }
     }
 }
