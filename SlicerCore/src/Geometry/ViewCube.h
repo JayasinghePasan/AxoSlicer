@@ -16,8 +16,22 @@ private:
     Microsoft::WRL::ComPtr<ID3D11PixelShader>  m_ps;
     Microsoft::WRL::ComPtr<ID3D11InputLayout>  m_il;
 
+
+    // Highlight 
+    Microsoft::WRL::ComPtr<ID3D11Buffer> m_highlightCB;
+    unsigned int m_highlightMask = 0;
+
+    // picking
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pickRTV;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pickTexture;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pickTextureStaging;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_pickDepthStencil;
+
     bool initialized = false;
+    bool initializedPick = false;
+
     HRESULT initializeCube();
+    HRESULT initializePick();
 
 public:
     // iRenderView
@@ -27,7 +41,7 @@ public:
 
     // iViewCube
     HRESULT __stdcall rotate(float dx, float dy) override;
-    HRESULT __stdcall pick(int x, int y, ViewMode mode) override;
-    HRESULT __stdcall setHighlight(int faceId) override;
+    HRESULT __stdcall pick(int x, int y, int* faceId) override;
+    HRESULT __stdcall setHighlight(unsigned int faceMask) override;
     HRESULT __stdcall resetView() override;
 };

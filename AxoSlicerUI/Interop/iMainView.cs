@@ -41,7 +41,7 @@ namespace AxoSlicer_Ui.Interop
 
         int rotate(float dx, float dy);
         int pick(int x, int y, out int faceId);
-        int setHighlight(int faceId);
+        int setHighlight(uint faceId);
         int resetView();
     }
 }

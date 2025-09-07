@@ -124,7 +124,11 @@ namespace AxoSlicer_Ui.Views
             {
                 int face;
                 if (_view.pick((int)pos.X, (int)pos.Y, out face) == 0)
-                    _view.setHighlight(face);
+                {
+                    System.Diagnostics.Debug.WriteLine($"Face={face}\n");
+                    uint mask = face >= 0 ? (1u << face) : 0u;
+                    _view.setHighlight(mask);
+                }
             }
             _lastPos = pos;
         }
