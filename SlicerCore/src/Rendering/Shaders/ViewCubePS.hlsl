@@ -23,7 +23,7 @@ float4 main(PSInput input, uint primID : SV_PrimitiveID) : SV_TARGET
     float3 finalColour = baseColour * (0.3f + 0.7f * diff);
     
     uint faceIndex = primID / 2;
-    if ((highlightMask && (1u << faceIndex)) != 0)
+    if ((highlightMask & (1u << faceIndex)) != 0)
         finalColour = float3(1.0f, 0.8f, 0.2f);
     
     return float4(finalColour, 1.0f);
