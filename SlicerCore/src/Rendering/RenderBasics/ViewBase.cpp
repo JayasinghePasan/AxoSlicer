@@ -156,6 +156,12 @@ void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
     XMVECTOR eye = XMVectorScale(dir, d);
     XMVECTOR at = XMVectorSet(-cx, -cy, -cz, 0);
     XMVECTOR up = XMVectorSet(0, 0, 1, 0);
+
+    // Avoid singularity when view direction is parallel to the default up vector
+    float dot = XMVectorGetX(XMVector3Dot(dir, up));
+    if (fabsf(dot) > 0.99f)
+        up = XMVectorSet(0, 1, 0, 0);
+
     XMMATRIX V = XMMatrixLookAtLH(eye, at, up);
 
     // PROJECTION 
