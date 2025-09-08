@@ -5,10 +5,10 @@
 #include "../Geometry/GeometryManager.h"
 
 
-#define RENDERDOC_NOHELPER 
-#include "renderdoc_app.h"
-static RENDERDOC_API_1_6_0* g_rdoc = nullptr;
-void InitRenderDocAPI();
+//#define RENDERDOC_NOHELPER 
+//#include "renderdoc_app.h"
+//static RENDERDOC_API_1_6_0* g_rdoc = nullptr;
+//void InitRenderDocAPI();
 
 using namespace Direct3D;
 using namespace DirectX;
@@ -33,13 +33,13 @@ HRESULT createMainView(HWND hWnd, iMainView** ppView)
 
 HRESULT __stdcall MainView::render()
 {
-    if (!renderdocLoaded)
+    /*if (!renderdocLoaded)
     {
         InitRenderDocAPI();
         renderdocLoaded = true;
     }
 
-    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);
+    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);*/
 
 
     // setting the background
@@ -85,7 +85,7 @@ HRESULT __stdcall MainView::render()
 
     Direct3D::context->Flush();
 
-    if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
+    //if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
 
     return S_OK;
 }
@@ -176,19 +176,19 @@ HRESULT __stdcall MainView::setProjection(int mode)
 
 
 
-void InitRenderDocAPI()
-{
-    HMODULE mod = GetModuleHandleA("renderdoc.dll");
-    if (!mod)
-    {
-        mod = LoadLibraryA("renderdoc.dll");
-    }
-
-    if (mod)
-    {
-        pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
-        if (RENDERDOC_GetAPI)
-            RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&g_rdoc);
-    }
-}
-
+//void InitRenderDocAPI()
+//{
+//    HMODULE mod = GetModuleHandleA("renderdoc.dll");
+//    if (!mod)
+//    {
+//        mod = LoadLibraryA("renderdoc.dll");
+//    }
+//
+//    if (mod)
+//    {
+//        pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+//        if (RENDERDOC_GetAPI)
+//            RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&g_rdoc);
+//    }
+//}
+//

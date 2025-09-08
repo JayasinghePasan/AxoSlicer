@@ -72,7 +72,7 @@ namespace AxoSlicer_Ui.ViewModels
                     _isOrthographic = value;
                     OnPropertyChanged();
                     MainViewModel.Instance.nativeMainView?.setProjection(_isOrthographic ? 1 : 0);
-                    MainViewModel.Instance.nativeMainView?.resetView();
+                    MainViewModel.Instance.ResetView();
                 }
             }
         }

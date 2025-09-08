@@ -117,5 +117,6 @@
     <FxCompile Include="src\Rendering\Shaders\GridVS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\GridPS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\ViewCubePickPS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\ViewCubePS.hlsl" />
   </ItemGroup>
 </Project>
