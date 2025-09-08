@@ -282,16 +282,30 @@ HRESULT __stdcall ViewCube::rotate(float dx, float dy)
 
 HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 {
-    /*if (!renderdocLoaded)
+    if (!renderdocLoaded)
     {
         InitRenderDocAPI();
         renderdocLoaded = true;
     }
 
-    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);*/
+    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);
 
     if (!initializedPick)
         initializePick();
+
+    // Save current render targets and viewport so picking does not interfere with other views using the same device context
+    CComPtr<ID3D11RenderTargetView> oldRTV;
+    CComPtr<ID3D11DepthStencilView> oldDSV;
+    context->OMGetRenderTargets(1, &oldRTV, &oldDSV);
+    UINT num = 1;
+    D3D11_VIEWPORT oldVP;
+    context->RSGetViewports(&num, &oldVP);
+
+    CComPtr<ID3D11BlendState> oldBlendState;
+    FLOAT blendFactor[4];
+    UINT sampleMask;
+    context->OMGetBlendState(&oldBlendState, blendFactor, &sampleMask);
+    context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
     // clear  rtv
     float clearCol[4] = {};
@@ -308,6 +322,9 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
     pixelViewPort.MinDepth = 0;
     pixelViewPort.MaxDepth = 1;
     context->RSSetViewports(1, &pixelViewPort);
+
+    BoundingBox bb(-1.f, -1.f, -1.f, 1.f, 1.f, 1.f);
+    UpdateMVPCBuffer(bb, renderState);
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -342,7 +359,14 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
     *faceId = triangleId >= 0 ? triangleId / 2 : -1;
     context->Unmap(m_pickTextureStaging, 0);
 
-    //if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
+    if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
+    
+    // Restore previous render targets and viewport
+    ID3D11RenderTargetView* rtvRestore = oldRTV.p;
+    context->OMSetRenderTargets(1, &rtvRestore, oldDSV.p);
+    context->RSSetViewports(1, &oldVP);
+    context->OMSetBlendState(oldBlendState.p, blendFactor, sampleMask);
+
     return S_OK;
 }
 
