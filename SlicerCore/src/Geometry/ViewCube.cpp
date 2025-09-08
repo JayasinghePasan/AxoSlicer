@@ -282,25 +282,21 @@ HRESULT __stdcall ViewCube::rotate(float dx, float dy)
 
 HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 {
-    if (!renderdocLoaded)
+    /*if (!renderdocLoaded)
     {
         InitRenderDocAPI();
         renderdocLoaded = true;
     }
 
-    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);
+    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);*/
 
-
-    initializePick();
-
-    BoundingBox bb(-1.f, -1.f, -1.f, 1.f, 1.f, 1.f);
-    UpdateMVPCBuffer(bb, renderState);
+    if (!initializedPick)
+        initializePick();
 
     // clear  rtv
     float clearCol[4] = {};
     context->ClearRenderTargetView(m_pickRTV, clearCol);
     context->ClearDepthStencilView(m_pickDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    
     context->OMSetRenderTargets(1, &m_pickRTV, m_pickDepthStencil);
 
     // creating a 1 pixel viewport at (x,y)
@@ -342,11 +338,11 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
         return hr;
 
     const uint32_t* const primID = (uint32_t*)map.pData;
-    int triangleId = static_cast<int>(*primID) - 1; // encoded as primitive ID + 1 in shader
+    int triangleId = static_cast<int>(*primID) - 1; 
     *faceId = triangleId >= 0 ? triangleId / 2 : -1;
     context->Unmap(m_pickTextureStaging, 0);
 
-    if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
+    //if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
     return S_OK;
 }
 
