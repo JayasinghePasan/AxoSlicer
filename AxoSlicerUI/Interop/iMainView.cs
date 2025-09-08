@@ -29,6 +29,7 @@ namespace AxoSlicer_Ui.Interop
         int pan(float dx, float dy);
         int resetView();
         int setProjection(int mode);
+        int setViewMode(int mode);
     }
 
     [ComImport, Guid("3b72ec08-c4b7-4a0d-bc3d-8b4382b8eefa"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

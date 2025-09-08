@@ -28,6 +28,7 @@ public:
 	HRESULT __stdcall pan(float dx, float dy) override;
 	HRESULT __stdcall resetView() override;
 	HRESULT __stdcall setProjection(int mode) override;
+	HRESULT __stdcall setViewMode(int mode) override;
 
 	int GeomCount();
 };

@@ -107,6 +107,14 @@ namespace AxoSlicer_Ui.Views
         {
             _rotating = false;
             CubeHost.ReleaseMouseCapture();
+            if ( _view != null )
+            {
+                var pos = e.GetPosition(CubeHost);
+                if ( _view.pick( (int)pos.X, (int)pos.Y, out int faceId) == 0 && faceId > -1 && faceId < 6)
+                {
+                    MainViewModel.Instance.SetViewMode(faceId);
+                }
+            }
         }
 
         private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)

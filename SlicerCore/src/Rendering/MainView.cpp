@@ -170,6 +170,24 @@ HRESULT __stdcall MainView::setProjection(int mode)
     return S_OK;
 }
 
+HRESULT __stdcall MainView::setViewMode(int mode)
+{
+    ViewMode vm = static_cast<ViewMode>(mode);
+    switch(vm)
+    {
+        case ViewMode::Front:  renderState.viewDir = { 1.f, 0.f, 0.f }; break;
+        case ViewMode::Back:   renderState.viewDir = {-1.f, 0.f, 0.f }; break;
+        case ViewMode::Left:   renderState.viewDir = { 0.f, 1.f, 0.f }; break;
+        case ViewMode::Right:  renderState.viewDir = { 0.f,-1.f, 0.f }; break;
+        case ViewMode::Top:    renderState.viewDir = { 0.f, 0.f,-1.f }; break;
+        case ViewMode::Bottom: renderState.viewDir = { 0.f, 0.f, 1.f }; break;
+        default: break;
+    }
+    renderState.yaw   = 0.0f;
+    renderState.pitch = 0.0f;
+    return S_OK;
+}
+
 
 
 

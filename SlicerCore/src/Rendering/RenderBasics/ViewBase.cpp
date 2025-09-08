@@ -149,9 +149,11 @@ void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
     XMMATRIX M = M_pan * M_rot * M_center;   
 
     // VIEW 
-    float d = 3 * R - rs.distance;
+    float d = 4 * R - rs.distance;
 
-    XMVECTOR eye = XMVectorSet( d, d, d, 1);
+    XMVECTOR dir = XMLoadFloat3(&rs.viewDir);
+    dir = XMVector3Normalize(dir);
+    XMVECTOR eye = XMVectorScale(dir, d);
     XMVECTOR at = XMVectorSet(-cx, -cy, -cz, 0);
     XMVECTOR up = XMVectorSet(0, 0, 1, 0);
     XMMATRIX V = XMMatrixLookAtLH(eye, at, up);

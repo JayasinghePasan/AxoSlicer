@@ -359,7 +359,7 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
     *faceId = triangleId >= 0 ? triangleId / 2 : -1;
     context->Unmap(m_pickTextureStaging.Get(), 0);
 
-    if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
+    //if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
     
     // Restore previous render targets and viewport
     ID3D11RenderTargetView* rtvRestore = oldRTV.p;

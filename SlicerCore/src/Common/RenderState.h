@@ -22,16 +22,17 @@ struct RenderState
 
     float fovY = float(M_PI)/4;
 
-    DirectX::XMFLOAT3 pan{ 0.f, 0.f, 0.f }; // pan offset
+    DirectX::XMFLOAT3 pan{ 0.f, 0.f, 0.f };     // pan offset
+    DirectX::XMFLOAT3 viewDir{ 1.f, 1.f, 1.f }; // camera direction vector
     ProjectionMode projection = ProjectionMode::Perspective;
 };
 
 enum class ViewMode
 {
-    Front,
-    Back,
-    Top,
-    Bottom,
-    Left,
-    Right
+    Front,  // ViewCube pick faceID 0 -> +X
+    Back,   // ViewCube pick faceID 1 -> -X
+    Left,   // ViewCube pick faceID 2 -> +Y
+    Right,  // ViewCube pick faceID 3 -> -Y
+    Top,    // ViewCube pick faceID 4 -> -Z
+    Bottom, // ViewCube pick faceID 5 -> +Z
 };
