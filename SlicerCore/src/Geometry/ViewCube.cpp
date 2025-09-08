@@ -2,6 +2,28 @@
 #include "ViewCube.h"
 #include "../Rendering/RenderBasics/Direct3D.h"
 
+#define RENDERDOC_NOHELPER 
+#include "../Rendering/renderdoc_app.h"
+static RENDERDOC_API_1_6_0* g_rdoc = nullptr;
+
+void InitRenderDocAPI()
+{
+    HMODULE mod = GetModuleHandleA("renderdoc.dll");
+    if (!mod)
+    {
+        mod = LoadLibraryA("renderdoc.dll");
+    }
+
+    if (mod)
+    {
+        pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+        if (RENDERDOC_GetAPI)
+            RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&g_rdoc);
+    }
+}
+
+
+
 using namespace Direct3D;
 using namespace DirectX;
 
@@ -127,7 +149,7 @@ HRESULT ViewCube::initializePick()
 
     // render target
     CD3D11_RENDER_TARGET_VIEW_DESC rtvDesc{ D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_UINT };
-    hr = device11->CreateRenderTargetView(m_pickTexture.Get(), &rtvDesc, &m_pickRTV);
+    hr = device11->CreateRenderTargetView(m_pickTexture, &rtvDesc, &m_pickRTV);
     if (FAILED(hr))
         return hr;
 
@@ -260,42 +282,35 @@ HRESULT __stdcall ViewCube::rotate(float dx, float dy)
 
 HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 {
-    if (!initializedPick)
-        initializePick();
+    if (!renderdocLoaded)
+    {
+        InitRenderDocAPI();
+        renderdocLoaded = true;
+    }
 
-    // Save current render targets, blend state and viewport so main view isn't affected
-    CComPtr<ID3D11RenderTargetView> oldRTV;
-    CComPtr<ID3D11DepthStencilView> oldDSV;
-    context->OMGetRenderTargets(1, &oldRTV, &oldDSV);
+    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);
 
-    CComPtr<ID3D11BlendState> oldBlend;
-    float blendFactor[4] = {};
-    UINT sampleMask = 0xffffffff;
-    context->OMGetBlendState(&oldBlend, blendFactor, &sampleMask);
 
-    UINT vpCount = 1;
-    D3D11_VIEWPORT oldVP;
-    context->RSGetViewports(&vpCount, &oldVP);
+    initializePick();
 
-    // clear pick render target
-    float clearCol[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    context->ClearRenderTargetView(m_pickRTV.Get(), clearCol);
-    context->ClearDepthStencilView(m_pickDepthStencil.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-    ID3D11RenderTargetView* rtvs[] = { m_pickRTV.Get() };
-    context->OMSetRenderTargets(1, rtvs, m_pickDepthStencil.Get());
+    BoundingBox bb(-1.f, -1.f, -1.f, 1.f, 1.f, 1.f);
+    UpdateMVPCBuffer(bb, renderState);
 
-    // Disable blending for integer render target
-    context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+    // clear  rtv
+    float clearCol[4] = {};
+    context->ClearRenderTargetView(m_pickRTV, clearCol);
+    context->ClearDepthStencilView(m_pickDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    
+    context->OMSetRenderTargets(1, &m_pickRTV, m_pickDepthStencil);
 
-    // create a 1x1 viewport positioned over the requested screen coordinate
-    D3D11_VIEWPORT pixelViewPort{};
-    pixelViewPort.Width = 1.0f;
-    pixelViewPort.Height = 1.0f;
-    // shift so the requested pixel maps to the single texel
-    pixelViewPort.TopLeftX = -static_cast<float>(x);
-    pixelViewPort.TopLeftY = -static_cast<float>(y);
-    pixelViewPort.MinDepth = 0.0f;
-    pixelViewPort.MaxDepth = 1.0f;
+    // creating a 1 pixel viewport at (x,y)
+    D3D11_VIEWPORT pixelViewPort;
+    pixelViewPort.Width = renderState.width;
+    pixelViewPort.Height = renderState.height;
+    pixelViewPort.TopLeftX = (float)-x;
+    pixelViewPort.TopLeftY = (float)-y;
+    pixelViewPort.MinDepth = 0;
+    pixelViewPort.MaxDepth = 1;
     context->RSSetViewports(1, &pixelViewPort);
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -317,35 +332,21 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
     Direct3D::context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     Direct3D::context->DrawIndexed(36, 0, 0);
 
-    // unbind render target before reading back the pixel
-    ID3D11RenderTargetView* nullRTV = nullptr;
-    context->OMSetRenderTargets(1, &nullRTV, nullptr);
-    context->CopyResource(m_pickTextureStaging.Get(), m_pickTexture.Get());
-    context->Flush();
+    ID3D11RenderTargetView* rtv = nullptr;
+    context->OMSetRenderTargets(1, &rtv, nullptr);
+    context->CopyResource(m_pickTextureStaging, m_pickTexture);
 
     D3D11_MAPPED_SUBRESOURCE map;
-    hr = context->Map(m_pickTextureStaging.Get(), 0, D3D11_MAP_READ, 0, &map);
+    hr = context->Map(m_pickTextureStaging, 0, D3D11_MAP_READ, 0, &map);
     if (FAILED(hr))
-    {
-        // Restore previous state before returning
-        ID3D11RenderTargetView* rtvRestore = oldRTV.p;
-        context->OMSetRenderTargets(1, &rtvRestore, oldDSV.p);
-        context->OMSetBlendState(oldBlend, blendFactor, sampleMask);
-        context->RSSetViewports(1, &oldVP);
         return hr;
-    }
 
-    uint32_t* primID = (uint32_t*)map.pData;
-    int triangleId = static_cast<int>(*primID) - 1; 
+    const uint32_t* const primID = (uint32_t*)map.pData;
+    int triangleId = static_cast<int>(*primID) - 1; // encoded as primitive ID + 1 in shader
     *faceId = triangleId >= 0 ? triangleId / 2 : -1;
-    context->Unmap(m_pickTextureStaging.Get(), 0);
+    context->Unmap(m_pickTextureStaging, 0);
 
-    // restore previous render targets, blend state and viewport
-    ID3D11RenderTargetView* rtvRestore = oldRTV.p;
-    context->OMSetRenderTargets(1, &rtvRestore, oldDSV.p);
-    context->OMSetBlendState(oldBlend, blendFactor, sampleMask);
-    context->RSSetViewports(1, &oldVP);
-
+    if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
     return S_OK;
 }
 

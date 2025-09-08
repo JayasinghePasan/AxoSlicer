@@ -22,13 +22,16 @@ private:
     unsigned int m_highlightMask = 0;
 
     // picking
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pickRTV;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pickTexture;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pickTextureStaging;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_pickDepthStencil;
+    ID3D11PixelShader*  m_pickPS;
+    ID3D11RenderTargetView* m_pickRTV;
+    ID3D11Texture2D* m_pickTexture;
+    ID3D11Texture2D* m_pickTextureStaging;
+    ID3D11DepthStencilView* m_pickDepthStencil;
 
     bool initialized = false;
     bool initializedPick = false;
+
+    bool renderdocLoaded = false;
 
     HRESULT initializeCube();
     HRESULT initializePick();
