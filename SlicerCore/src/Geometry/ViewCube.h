@@ -47,4 +47,5 @@ public:
     HRESULT __stdcall pick(int x, int y, int* faceId) override;
     HRESULT __stdcall setHighlight(unsigned int faceMask) override;
     HRESULT __stdcall resetView() override;
+    HRESULT __stdcall setViewMode(int mode) override;
 };

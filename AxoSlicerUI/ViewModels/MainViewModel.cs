@@ -18,6 +18,7 @@ namespace AxoSlicer_Ui.ViewModels
         public event EventHandler GeometryManagerInitialized;
 
         public event Action<float, float> RotationChanged;
+        public event Action<int> ViewModeChanged;
         public event Action ViewReset;
 
         public void initializeMainView(iMainView native_mainView, iGeometryManager native_geomManager)
@@ -51,7 +52,7 @@ namespace AxoSlicer_Ui.ViewModels
         public void SetViewMode(int mode)
         {
             _nativeMainView?.setViewMode(mode);
-            ViewReset?.Invoke();
+            ViewModeChanged?.Invoke(mode);
         }
     }
 }

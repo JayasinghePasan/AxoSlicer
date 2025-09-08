@@ -9,6 +9,7 @@ public:
     virtual ~ViewBase();
 
     void UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs);
+    void updateViewMode(int mode, RenderState& renderState);
 
 protected:
     // get called on every resizing

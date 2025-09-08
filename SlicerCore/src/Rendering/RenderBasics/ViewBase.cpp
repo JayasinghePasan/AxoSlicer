@@ -189,3 +189,20 @@ void ViewBase::UpdateMVPCBuffer(BoundingBox globalBB, RenderState rs)
 
 }
 
+void ViewBase::updateViewMode(int mode, RenderState& renderState)
+{
+    ViewMode vm = static_cast<ViewMode>(mode);
+    switch (vm)
+    {
+    case ViewMode::Front:  renderState.viewDir = { 1.f, 0.f, 0.f }; break;
+    case ViewMode::Back:   renderState.viewDir = { -1.f, 0.f, 0.f }; break;
+    case ViewMode::Left:   renderState.viewDir = { 0.f, 1.f, 0.f }; break;
+    case ViewMode::Right:  renderState.viewDir = { 0.f,-1.f, 0.f }; break;
+    case ViewMode::Top:    renderState.viewDir = { 0.f, 0.f,-1.f }; break;
+    case ViewMode::Bottom: renderState.viewDir = { 0.f, 0.f, 1.f }; break;
+    default: break;
+    }
+    renderState.yaw = 0.0f;
+    renderState.pitch = 0.0f;
+}
+

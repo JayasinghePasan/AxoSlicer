@@ -395,3 +395,9 @@ HRESULT __stdcall ViewCube::resetView()
     renderState.pitch = 0.0f;
     return S_OK;
 }
+
+HRESULT __stdcall ViewCube::setViewMode(int mode)
+{
+    updateViewMode(mode, renderState);
+    return S_OK;
+}
