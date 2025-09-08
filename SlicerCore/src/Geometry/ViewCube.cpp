@@ -149,7 +149,7 @@ HRESULT ViewCube::initializePick()
 
     // render target
     CD3D11_RENDER_TARGET_VIEW_DESC rtvDesc{ D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R32_UINT };
-    hr = device11->CreateRenderTargetView(m_pickTexture, &rtvDesc, &m_pickRTV);
+    hr = device11->CreateRenderTargetView(m_pickTexture.Get(), &rtvDesc, &m_pickRTV);
     if (FAILED(hr))
         return hr;
 
@@ -282,13 +282,13 @@ HRESULT __stdcall ViewCube::rotate(float dx, float dy)
 
 HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 {
-    if (!renderdocLoaded)
+    /*if (!renderdocLoaded)
     {
         InitRenderDocAPI();
         renderdocLoaded = true;
     }
 
-    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);
+    if (g_rdoc) g_rdoc->StartFrameCapture(device11, nullptr);*/
 
     if (!initializedPick)
         initializePick();
@@ -309,9 +309,9 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 
     // clear  rtv
     float clearCol[4] = {};
-    context->ClearRenderTargetView(m_pickRTV, clearCol);
-    context->ClearDepthStencilView(m_pickDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    context->OMSetRenderTargets(1, &m_pickRTV, m_pickDepthStencil);
+    context->ClearRenderTargetView(m_pickRTV.Get(), clearCol);
+    context->ClearDepthStencilView(m_pickDepthStencil.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    context->OMSetRenderTargets(1, m_pickRTV.GetAddressOf(), m_pickDepthStencil.Get());
 
     // creating a 1 pixel viewport at (x,y)
     D3D11_VIEWPORT pixelViewPort;
@@ -347,17 +347,17 @@ HRESULT __stdcall ViewCube::pick(int x, int y, int* faceId)
 
     ID3D11RenderTargetView* rtv = nullptr;
     context->OMSetRenderTargets(1, &rtv, nullptr);
-    context->CopyResource(m_pickTextureStaging, m_pickTexture);
+    context->CopyResource(m_pickTextureStaging.Get(), m_pickTexture.Get());
 
     D3D11_MAPPED_SUBRESOURCE map;
-    hr = context->Map(m_pickTextureStaging, 0, D3D11_MAP_READ, 0, &map);
+    hr = context->Map(m_pickTextureStaging.Get(), 0, D3D11_MAP_READ, 0, &map);
     if (FAILED(hr))
         return hr;
 
     const uint32_t* const primID = (uint32_t*)map.pData;
     int triangleId = static_cast<int>(*primID) - 1; 
     *faceId = triangleId >= 0 ? triangleId / 2 : -1;
-    context->Unmap(m_pickTextureStaging, 0);
+    context->Unmap(m_pickTextureStaging.Get(), 0);
 
     if (g_rdoc) g_rdoc->EndFrameCapture(Direct3D::device11, nullptr);
     
