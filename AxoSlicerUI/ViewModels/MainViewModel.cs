@@ -48,7 +48,6 @@ namespace AxoSlicer_Ui.ViewModels
             _nativeMainView?.resetView();
             ViewReset?.Invoke();
         }
-
         public void SetViewMode(int mode)
         {
             _nativeMainView?.setViewMode(mode);

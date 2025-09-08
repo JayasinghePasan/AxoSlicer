@@ -178,10 +178,6 @@ HRESULT __stdcall MainView::setViewMode(int mode)
 
 
 
-
-
-
-
 //void InitRenderDocAPI()
 //{
 //    HMODULE mod = GetModuleHandleA("renderdoc.dll");

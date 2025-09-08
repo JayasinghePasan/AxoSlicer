@@ -45,5 +45,6 @@ namespace AxoSlicer_Ui.Interop
         int setHighlight(uint faceId);
         int resetView();
         int setViewMode(int mode);
+
     }
 }

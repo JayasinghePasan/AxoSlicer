@@ -151,7 +151,6 @@ namespace AxoSlicer_Ui.Views
         {
             _view?.setViewMode(mode);
         }
-
         private void OnMainViewReset()
         {
             _view?.resetView();
