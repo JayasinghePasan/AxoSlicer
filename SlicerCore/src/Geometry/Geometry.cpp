@@ -140,7 +140,7 @@ HRESULT __stdcall Geometry::Render()
 
     context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
     context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    context->Draw(static_cast<UINT>(trianglesCount * 3), 0);
+    context->Draw(vertexCount, 0);
     return S_OK;
 }
 
@@ -199,7 +199,7 @@ void Geometry::UploadToGPUBuffers()
         vertexBuffer.Reset();
         return;
     }
-    trianglesCount = (UINT)triangles.size();
+    vertexCount = (UINT)vertices.size();
     triangles.clear();
     return;
 }
@@ -212,5 +212,43 @@ void Geometry::SetVisibility(bool vis)
 HRESULT Geometry::GetBoundingBox(BoundingBox& box)
 {
     box = boundingBox;
+    return S_OK;
+}
+
+HRESULT __stdcall Geometry::Translate(float dx, float dy, float dz)
+{
+    if (!vertexBuffer)
+        return E_FAIL;
+
+    // new staging buffer to get vertices from GPU
+    D3D11_BUFFER_DESC desc = {};
+    vertexBuffer->GetDesc(&desc);
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+    desc.BindFlags = 0;
+    desc.MiscFlags = 0;
+
+    Microsoft::WRL::ComPtr<ID3D11Buffer> staging;
+    device11->CreateBuffer(&desc, nullptr, &staging);
+
+    // copy data to the staging buffer
+    context->CopyResource(staging.Get(), vertexBuffer.Get());
+
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+    context->Map(staging.Get(), 0, D3D11_MAP_READ_WRITE, 0, &mapped);
+    Vertex* vertices = reinterpret_cast<Vertex*>(mapped.pData);
+    
+    for (size_t i = 0; i < vertexCount; i++)
+    {
+        vertices[i].x += dx;
+        vertices[i].y += dy;
+        vertices[i].z += dz;
+    }
+
+    context->Unmap(staging.Get(), 0);
+
+    // copy new vertices to the vertexBuffer back
+    context->CopyResource(vertexBuffer.Get(), staging.Get());
+
     return S_OK;
 }
