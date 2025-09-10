@@ -101,7 +101,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\MousePickers\GeometryPicker.h" />
     <ClInclude Include="Public\iViewCube.h" />
+    <ClInclude Include="src\Rendering\MousePickers\MousePicker.h" />
     <ClInclude Include="src\Utilities\BottomGrid.h" />
     <ClInclude Include="src\Rendering\renderdoc_app.h" />
     <ClInclude Include="src\Common\BoundingBox.h" />
@@ -123,6 +125,7 @@
     <ClInclude Include="src\Geometry\ViewCube.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rendering\MousePickers\GeometryPicker.cpp" />
     <ClCompile Include="src\Utilities\BottomGrid.cpp" />
     <ClCompile Include="src\Geometry\Geometry.cpp" />
     <ClCompile Include="src\Geometry\GeometryManager.cpp" />
@@ -141,6 +144,11 @@
     <None Include="src\Rendering\Shaders\Common.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="src\Rendering\Shaders\GeometryPickPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="src\Rendering\Shaders\GridPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

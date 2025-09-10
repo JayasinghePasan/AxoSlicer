@@ -1,9 +1,11 @@
-﻿using System;
+﻿using AxoSlicer_Ui.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace AxoSlicer_Ui.Interop
 {
@@ -30,6 +32,8 @@ namespace AxoSlicer_Ui.Interop
         int resetView();
         int setProjection(int mode);
         int setViewMode(int mode);
+        int pickGeom(int x, int y, out Guid geomId);
+        int pickGeomArrow(int x, int y, Guid geomId, out eViewDirection viewDir);
     }
 
     [ComImport, Guid("3b72ec08-c4b7-4a0d-bc3d-8b4382b8eefa"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

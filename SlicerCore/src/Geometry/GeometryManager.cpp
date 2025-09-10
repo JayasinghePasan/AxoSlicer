@@ -1,6 +1,8 @@
 #pragma once
 #include "Geometry.h"
 #include "GeometryManager.h"
+#include "../Rendering/MousePickers/GeometryPicker.h"
+#include "../Rendering/RenderBasics/Direct3D.h"
 #include "../pch.h"
 
 HRESULT createGeometryManager(iGeometryManager** ppGeomManager)
@@ -47,6 +49,18 @@ HRESULT __stdcall GeometryManager::RemoveGeometry(GUID geometryID)
 
 HRESULT __stdcall GeometryManager::RenderGeometries()
 {
+    // set common IA and shaders for geometries
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    HRESULT hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"SimplePS.cso", layout, _countof(layout));
+
+    if (FAILED(hr))
+        return hr;
+
     for (auto it : geometryMap)
     {
         if (it.second)
@@ -92,6 +106,14 @@ HRESULT __stdcall GeometryManager::SetVisibility(GUID geometryID, BOOL visible)
 
     geomRaw->SetVisibility(visible);
     RecalcualteBoundingBox();
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::PickGeometry(int x, int y, GUID& pickGeomId, RenderState& renderState)
+{
+    GeometryPicker gp(geometryMap, renderState);
+    gp.Pick(x, y);
+    gp.ReadGeometry(pickGeomId);
     return S_OK;
 }
 

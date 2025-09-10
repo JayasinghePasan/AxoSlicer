@@ -7,6 +7,8 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using System.Windows.Controls;
 using AxoSlicer_Ui.ViewModels;
+using AxoSlicer_Ui.Utilities;
+using System.Diagnostics;
 
 namespace AxoSlicer_Ui.Views
 {
@@ -19,9 +21,11 @@ namespace AxoSlicer_Ui.Views
         private Point _lastPos;
         private bool _rotating;
         private bool _panning;
+        private eViewDirection _translateViewDir;
 
         public enum MouseMode { Navigate, Pick }
         public MouseMode CurrentMode { get; set; } = MouseMode.Navigate;
+        private Guid _pickModeGeometryId;
 
         public D3DView()
         {
@@ -119,20 +123,57 @@ namespace AxoSlicer_Ui.Views
 
         private void OnMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (_mainView == null)
+                return;
+
             _lastPos = e.GetPosition(ViewHost);
-            if (CurrentMode == MouseMode.Navigate)
+
+            // doucle clicks switch the mode to pick if double clicked on a geometry
+            if (e.ClickCount >= 2)
             {
-                if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
-                    _rotating = true;
-                if (e.RightButton == System.Windows.Input.MouseButtonState.Pressed)
-                    _panning = true;
+                if (CurrentMode == MouseMode.Navigate)
+                {
+                    _mainView.pickGeom((int)_lastPos.X, (int)_lastPos.Y, out Guid geomId);
+                    if (geomId != Guid.Empty)
+                    {
+                        MainViewModel.Instance?.geometryManager?.EnablePickMode(geomId, true);
+                        _pickModeGeometryId = geomId;
+                        CurrentMode = MouseMode.Pick;
+                    }
+                }
+                else
+                {
+                    MainViewModel.Instance?.geometryManager?.EnablePickMode(Guid.Empty, false);
+                    _pickModeGeometryId = Guid.Empty;
+                    CurrentMode = MouseMode.Navigate;
+                }
             }
+
+            // single clicks
+            //if (CurrentMode == MouseMode.Pick)
+            //{
+            //    var pos = e.GetPosition(ViewHost);
+            //    Debug.Assert(_pickModeGeometryId != Guid.Empty);
+            //    _mainView.pickGeomArrow((int)pos.X, (int)pos.Y, _pickModeGeometryId, out _translateViewDir);
+            //    if (_translateViewDir != eViewDirection.Invalid)
+            //    {
+            //        ViewHost.CaptureMouse();
+            //        return; 
+            //    }
+            //}
+
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+                _rotating = true;
+            if (e.RightButton == System.Windows.Input.MouseButtonState.Pressed)
+                _panning = true;
+
             ViewHost.CaptureMouse();
         }
 
         private void OnMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _rotating = _panning = false;
+            _translateViewDir = eViewDirection.Invalid;
             ViewHost.ReleaseMouseCapture();
         }
 
@@ -144,12 +185,32 @@ namespace AxoSlicer_Ui.Views
             var dx = (float)(pos.X - _lastPos.X);
             var dy = (float)(pos.Y - _lastPos.Y);
             _lastPos = pos;
-            if (CurrentMode == MouseMode.Navigate)
+            if (CurrentMode == MouseMode.Navigate || (CurrentMode == MouseMode.Pick && _translateViewDir == eViewDirection.Invalid ))
             {
                 if (_rotating)
                     MainViewModel.Instance.Rotate(dx, dy);
                 else if (_panning)
                     _mainView.pan(dx, dy);
+            }
+            else if ( CurrentMode == MouseMode.Pick && _pickModeGeometryId != Guid.Empty && _translateViewDir != eViewDirection.Invalid)
+            {
+                switch (_translateViewDir)
+                {
+                    case eViewDirection.X_pos:
+                    case eViewDirection.X_neg:
+                        MainViewModel.Instance?.geometryManager.TranslateGeometry(_pickModeGeometryId, eViewDirection.X_pos, dx);
+                        break;
+                    case eViewDirection.Y_pos:
+                    case eViewDirection.Y_neg:
+                        MainViewModel.Instance?.geometryManager.TranslateGeometry(_pickModeGeometryId, eViewDirection.Y_pos, dy);
+                        break;
+                    case eViewDirection.Z_pos:
+                    case eViewDirection.Z_neg:
+                        MainViewModel.Instance?.geometryManager.TranslateGeometry(_pickModeGeometryId, eViewDirection.Z_pos, dx);
+                        break;
+                }
+
+                _pickModeGeometryId = Guid.Empty;
             }
         }
     }

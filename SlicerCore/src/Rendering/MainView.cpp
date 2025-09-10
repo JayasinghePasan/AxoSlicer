@@ -176,6 +176,22 @@ HRESULT __stdcall MainView::setViewMode(int mode)
     return S_OK;
 }
 
+HRESULT __stdcall MainView::pickGeom(int x, int y, GUID& geomId)
+{
+    // update model view proj
+    BoundingBox bb;
+    geometryManager->GetGlobalBoundingBox(bb);
+    UpdateMVPCBuffer(bb, renderState);
+
+    geometryManager->PickGeometry(x, y, geomId, renderState);
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::pickGeomArrow(int x, int y, GUID geomId, eViewDirection& viewDir)
+{
+    return E_NOTIMPL;
+}
+
 
 
 

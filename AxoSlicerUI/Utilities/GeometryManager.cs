@@ -1,9 +1,11 @@
 ﻿using AxoSlicer_Ui.Interop;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Documents;
 
 namespace AxoSlicer_Ui.Utilities
 {
@@ -70,6 +72,28 @@ namespace AxoSlicer_Ui.Utilities
         {
             geometries.Clear();
             nativeGeometryManager = null;
+        }
+
+        public void EnablePickMode(Guid geomId, bool enable)
+        {
+            if (geomId == Guid.Empty)
+            {
+                Debug.WriteLine($"Geometry pick disabled");
+                return;
+            }
+            Geometry geom = geometries.FirstOrDefault(g => g.geometryId == geomId);
+            if (geom == null || !geom.IsVisible)
+                return;
+            //geom.EnableTranslate(enable);
+            Debug.WriteLine($"Geometry:{geom} highlight {enable}");
+        }
+
+        public void TranslateGeometry(Guid geomId, eViewDirection dir, float d)
+        {
+            Geometry geom = geometries.FirstOrDefault(g => g.geometryId == geomId);
+            if (geom == null || !geom.IsVisible)
+                return;
+            Debug.WriteLine($"Geometry:{geom} translate {dir} - distance {d}");
         }
     }
 }

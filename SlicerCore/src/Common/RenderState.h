@@ -36,3 +36,14 @@ enum class ViewMode
     Top,    // ViewCube pick faceID 4 -> -Z
     Bottom, // ViewCube pick faceID 5 -> +Z
 };
+
+enum class eViewDirection
+{
+    X_pos,
+    Y_pos,
+    Z_pos,
+    X_neg,
+    Y_neg,
+    Z_neg,
+    Invalid
+};

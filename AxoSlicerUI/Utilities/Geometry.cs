@@ -23,7 +23,7 @@ namespace AxoSlicer_Ui.Utilities
             this.geometryId = tempIdHolder;
         }
 
-        bool _isVisible;
+        bool _isVisible = true;
         public bool IsVisible
         {
             get => _isVisible;
@@ -35,6 +35,11 @@ namespace AxoSlicer_Ui.Utilities
                     OnPropertyChanged();
                 }
             }
+        }
+
+        public void EnableTranslate( bool enable)
+        {
+            //nativeGeometry.Highight(enable); 
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

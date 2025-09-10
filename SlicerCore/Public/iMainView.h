@@ -1,4 +1,5 @@
 #pragma once
+#include "../src/pch.h"
 #include "iRenderView.h"
 
 __interface iGeometry;
@@ -13,4 +14,6 @@ __interface __declspec(uuid("d2f8c1b4-3e5a-4b0c-9f6d-7e1c8f3b2a1e")) iMainView :
 	HRESULT __stdcall resetView();
 	HRESULT __stdcall setProjection(int mode);
 	HRESULT __stdcall setViewMode(int mode);
+	HRESULT __stdcall pickGeom(int x, int y, GUID& geomId);
+	HRESULT __stdcall pickGeomArrow(int x, int y, GUID geomId, eViewDirection& viewDir);
 };
