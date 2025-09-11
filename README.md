@@ -1,2 +1,6 @@
+This program is a simple #D viewer with ability to move geometries across the world view.
+Tech: C++, C#, DirectX 11
 
-[![Watch the video](https://img.youtube.com/vi/nSNg1FzgyD0/maxresdefault.jpg)](https://youtu.be/nSNg1FzgyD0)
+Video: [https://www.youtube.com/watch?v=nSNg1FzgyD0](https://www.youtube.com/watch?v=nSNg1FzgyD0)
+
+[![Watch the video](https://img.youtube.com/vi/nSNg1FzgyD0/maxresdefault.jpg)](https://www.youtube.com/watch?v=nSNg1FzgyD0)
