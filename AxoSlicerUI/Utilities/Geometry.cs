@@ -39,7 +39,7 @@ namespace AxoSlicer_Ui.Utilities
 
         public void EnableTranslate( bool enable)
         {
-            //nativeGeometry.Highight(enable); 
+            nativeGeometry.Highlight(enable); 
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

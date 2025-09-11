@@ -15,5 +15,6 @@ namespace AxoSlicer_Ui.Interop
         void Render();
         void GetBoundingBox(out BoundingBox box);
         void Translate(float dx, float dy, float dz);
+        void Highlight(bool highliht);
     }
 }

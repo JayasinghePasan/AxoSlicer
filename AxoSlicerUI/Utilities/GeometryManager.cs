@@ -78,14 +78,13 @@ namespace AxoSlicer_Ui.Utilities
         {
             if (geomId == Guid.Empty)
             {
-                Debug.WriteLine($"Geometry pick disabled");
+                geometries.ToList().ForEach( geom => geom.nativeGeometry.Highlight(false));
                 return;
             }
             Geometry geom = geometries.FirstOrDefault(g => g.geometryId == geomId);
             if (geom == null || !geom.IsVisible)
                 return;
-            //geom.EnableTranslate(enable);
-            Debug.WriteLine($"Geometry:{geom} highlight {enable}");
+            geom.nativeGeometry.Highlight(enable);
         }
 
         public void TranslateGeometry(Guid geomId, eViewDirection dir, float d)
@@ -93,7 +92,7 @@ namespace AxoSlicer_Ui.Utilities
             Geometry geom = geometries.FirstOrDefault(g => g.geometryId == geomId);
             if (geom == null || !geom.IsVisible)
                 return;
-            Debug.WriteLine($"Geometry:{geom} translate {dir} - distance {d}");
+            //geom.Translate
         }
     }
 }
