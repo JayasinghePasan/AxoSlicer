@@ -124,23 +124,17 @@ HRESULT __stdcall Geometry::Render()
     if (!context || !vertexBuffer)
         return E_FAIL;
 
-    D3D11_INPUT_ELEMENT_DESC layout[] = 
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
-    HRESULT hr = Direct3D::BindShadersFromCSO( L"SimpleVS.cso", L"SimplePS.cso", layout, _countof(layout));
-
-    if (FAILED(hr))
-        return hr;
     UINT stride = sizeof(float) * 6;
     UINT offset = 0;
     ID3D11Buffer* vb = vertexBuffer.Get();
 
+    // set highlight buffer
+    ID3D11Buffer* cb[] = { highlightCB.Get() };
+    context->PSSetConstantBuffers(2, 1, cb);
+
     context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
     context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    context->Draw(static_cast<UINT>(trianglesCount * 3), 0);
+    context->Draw(vertexCount, 0);
     return S_OK;
 }
 
@@ -199,8 +193,17 @@ void Geometry::UploadToGPUBuffers()
         vertexBuffer.Reset();
         return;
     }
-    trianglesCount = (UINT)triangles.size();
+    vertexCount = (UINT)vertices.size();
     triangles.clear();
+
+    // setting the highlight buffer
+    if (!highlightCB)
+    {
+        Highlight(false);
+        ID3D11Buffer* hcb = highlightCB.Get();
+        context->PSSetConstantBuffers(1, 1, &hcb);
+    }
+
     return;
 }
 
@@ -212,5 +215,76 @@ void Geometry::SetVisibility(bool vis)
 HRESULT Geometry::GetBoundingBox(BoundingBox& box)
 {
     box = boundingBox;
+    return S_OK;
+}
+
+HRESULT __stdcall Geometry::Translate(float dx, float dy, float dz)
+{
+    if (!vertexBuffer)
+        return E_FAIL;
+
+    // new staging buffer to get vertices from GPU
+    D3D11_BUFFER_DESC desc = {};
+    vertexBuffer->GetDesc(&desc);
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+    desc.BindFlags = 0;
+    desc.MiscFlags = 0;
+
+    Microsoft::WRL::ComPtr<ID3D11Buffer> staging;
+    device11->CreateBuffer(&desc, nullptr, &staging);
+
+    // copy data to the staging buffer
+    context->CopyResource(staging.Get(), vertexBuffer.Get());
+
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+    context->Map(staging.Get(), 0, D3D11_MAP_READ_WRITE, 0, &mapped);
+    Vertex* vertices = reinterpret_cast<Vertex*>(mapped.pData);
+    
+    for (size_t i = 0; i < vertexCount; i++)
+    {
+        vertices[i].x += dx;
+        vertices[i].y += dy;
+        vertices[i].z += dz;
+    }
+
+    context->Unmap(staging.Get(), 0);
+
+    // copy new vertices to the vertexBuffer back
+    context->CopyResource(vertexBuffer.Get(), staging.Get());
+
+    return S_OK;
+}
+
+HRESULT __stdcall Geometry::Highlight(bool highlight)
+{
+    if (highlighted == highlight)
+        return S_OK;
+
+    if (!device11 || !context)
+        return E_FAIL;
+
+    if (!highlightCB)
+    {
+        D3D11_BUFFER_DESC cbd{};
+        cbd.ByteWidth = sizeof(sCBuffer);
+        cbd.Usage = D3D11_USAGE_DYNAMIC;
+        cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        HRESULT hr = device11->CreateBuffer(&cbd, nullptr, &highlightCB);
+        if (FAILED(hr))
+            return hr;
+    }
+
+    sCBuffer chb = { highlight ? 1u : 0u, {0,0,0} };
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    HRESULT hr = context->Map(highlightCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    if (FAILED(hr))
+        return hr;
+    memcpy(mapped.pData, &chb, sizeof(sCBuffer));
+    context->Unmap(highlightCB.Get(), 0);
+
+    highlighted = highlight;
+
     return S_OK;
 }

@@ -25,16 +25,16 @@ namespace AxoSlicer_Ui.ViewModels
         {
             _nativeMainView = native_mainView;
             _nativeMainView.setGeometryManager(native_geomManager);
-            GeometryManager = new GeometryManager(native_geomManager);
+            geometryManager = new GeometryManager(native_geomManager);
             GeometryManagerInitialized?.Invoke(this, EventArgs.Empty);
             ResetView();
         }
 
-        public GeometryManager GeometryManager { get; private set; } = null;
+        public GeometryManager geometryManager { get; private set; } = null;
 
         public void AddGeometry(string filepath)
         {
-            GeometryManager.AddGeometry(filepath);
+            geometryManager.AddGeometry(filepath);
             ResetView();
         }
 
@@ -43,6 +43,7 @@ namespace AxoSlicer_Ui.ViewModels
             _nativeMainView?.rotate(dx, dy);
             RotationChanged?.Invoke(dx, dy);
         }
+
         public void ResetView()
         {
             _nativeMainView?.resetView();

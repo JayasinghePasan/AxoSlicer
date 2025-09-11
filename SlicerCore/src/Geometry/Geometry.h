@@ -9,6 +9,8 @@ public:
 	HRESULT __stdcall GetGuid(GUID& guid) override;
 	HRESULT __stdcall Render() override;
 	HRESULT __stdcall GetBoundingBox(BoundingBox& box) override;
+	HRESULT __stdcall Translate(float dx, float dy, float dz) override;
+	HRESULT __stdcall Highlight(bool highliht) override;
 
 	HRESULT LoadFromBuffer(const void* buffer, size_t length);
 	void UploadToGPUBuffers();
@@ -16,13 +18,21 @@ public:
 
 private:
 	GUID geometryID;					// set when loading from the input read buffer
-	
-	UINT trianglesCount;
+
+	UINT vertexCount;
 	std::vector<Triangle> triangles;    // gets cleared soon after uploaded to buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 
 	BoundingBox boundingBox;
 
 	bool visible = true;
+	bool highlighted = false;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> highlightCB;
+};
 
+// for geometry highlight buffer 
+struct sCBuffer
+{
+	UINT highlight;
+	UINT pad[3];
 };

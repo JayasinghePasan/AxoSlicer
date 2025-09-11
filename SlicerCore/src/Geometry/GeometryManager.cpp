@@ -1,6 +1,8 @@
 #pragma once
 #include "Geometry.h"
 #include "GeometryManager.h"
+#include "../Rendering/MousePickers/GeometryPicker.h"
+#include "../Rendering/RenderBasics/Direct3D.h"
 #include "../pch.h"
 
 HRESULT createGeometryManager(iGeometryManager** ppGeomManager)
@@ -47,10 +49,28 @@ HRESULT __stdcall GeometryManager::RemoveGeometry(GUID geometryID)
 
 HRESULT __stdcall GeometryManager::RenderGeometries()
 {
+    // set common IA and shaders for geometries
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    HRESULT hr = Direct3D::BindShadersFromCSO(L"SimpleVS.cso", L"SimplePS.cso", layout, _countof(layout));
+
+    if (FAILED(hr))
+        return hr;
+
     for (auto it : geometryMap)
     {
         if (it.second)
             it.second->Render();
+    }
+
+    // render translate box
+    if (translateGeometry != nullptr)
+    {
+        translateBox.Render();
     }
     return S_OK;
 }
@@ -92,6 +112,48 @@ HRESULT __stdcall GeometryManager::SetVisibility(GUID geometryID, BOOL visible)
 
     geomRaw->SetVisibility(visible);
     RecalcualteBoundingBox();
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::PickGeometry(int x, int y, GUID& pickGeomId, RenderState& renderState)
+{
+    GeometryPicker gp(geometryMap, renderState);
+    gp.Pick(x, y);
+    gp.ReadGeometry(pickGeomId);
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::PickGeomArrow(int x, int y, GUID geomId, BoundingBox globalBB, RenderState& rs, eViewDirection& viewDir)
+{
+    if (translateGeometry == nullptr)
+    {
+        viewDir = eViewDirection::Invalid;
+        return S_OK;
+    }
+#if _DEBUG
+    GUID translateGeomGuid;
+    translateGeometry->GetGuid(translateGeomGuid);
+    if (geomId != translateGeomGuid)
+        return E_FAIL;
+#endif
+
+    translateBox.Pick(x, y, globalBB, rs, viewDir);
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::setTranslateBox(GUID geomId, bool render)
+{
+    if (!render)
+    {
+        translateGeometry = nullptr;
+        translateBox.Disable();
+        return S_OK;
+    }
+    translateGeometry = geometryMap[geomId];
+    BoundingBox bb;
+    translateGeometry->GetBoundingBox(bb);
+    translateBox.Initialize(bb);
+
     return S_OK;
 }
 

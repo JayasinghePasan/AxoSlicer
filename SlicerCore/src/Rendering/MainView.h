@@ -29,6 +29,8 @@ public:
 	HRESULT __stdcall resetView() override;
 	HRESULT __stdcall setProjection(int mode) override;
 	HRESULT __stdcall setViewMode(int mode) override;
+	HRESULT __stdcall pickGeom(int x, int y, GUID& geomId) override;
+	HRESULT __stdcall pickGeomArrow(int x, int y, GUID geomId, eViewDirection& viewDir) override;
 
 	int GeomCount();
 };

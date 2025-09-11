@@ -2,25 +2,25 @@
 #include "ViewCube.h"
 #include "../Rendering/RenderBasics/Direct3D.h"
 
-#define RENDERDOC_NOHELPER 
-#include "../Rendering/renderdoc_app.h"
-static RENDERDOC_API_1_6_0* g_rdoc = nullptr;
-
-void InitRenderDocAPI()
-{
-    HMODULE mod = GetModuleHandleA("renderdoc.dll");
-    if (!mod)
-    {
-        mod = LoadLibraryA("renderdoc.dll");
-    }
-
-    if (mod)
-    {
-        pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
-        if (RENDERDOC_GetAPI)
-            RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&g_rdoc);
-    }
-}
+//#define RENDERDOC_NOHELPER 
+//#include "../Rendering/renderdoc_app.h"
+//static RENDERDOC_API_1_6_0* g_rdoc = nullptr;
+//
+//void InitRenderDocAPI()
+//{
+//    HMODULE mod = GetModuleHandleA("renderdoc.dll");
+//    if (!mod)
+//    {
+//        mod = LoadLibraryA("renderdoc.dll");
+//    }
+//
+//    if (mod)
+//    {
+//        pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+//        if (RENDERDOC_GetAPI)
+//            RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&g_rdoc);
+//    }
+//}
 
 
 

@@ -81,7 +81,6 @@ HRESULT __stdcall MainView::render()
     // 2 - render geometries
     geometryManager->RenderGeometries();
 
-    // 3 - render view cube
 
     Direct3D::context->Flush();
 
@@ -92,8 +91,8 @@ HRESULT __stdcall MainView::render()
 
 HRESULT __stdcall MainView::resize(const int widthPixels, const int heightPixels, const float dpiScale)
 {
-    renderState.width  = widthPixels;
-    renderState.height = heightPixels;
+    renderState.width  = (float)widthPixels;
+    renderState.height = (float)heightPixels;
     renderState.dpi = dpiScale;
     return createResources(widthPixels, heightPixels);
 }
@@ -173,6 +172,26 @@ HRESULT __stdcall MainView::setProjection(int mode)
 HRESULT __stdcall MainView::setViewMode(int mode)
 {
     updateViewMode(mode, renderState);
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::pickGeom(int x, int y, GUID& geomId)
+{
+    // update model view proj
+    BoundingBox bb;
+    geometryManager->GetGlobalBoundingBox(bb);
+    UpdateMVPCBuffer(bb, renderState);
+
+    geometryManager->PickGeometry(x, y, geomId, renderState);
+    return S_OK;
+}
+
+HRESULT __stdcall MainView::pickGeomArrow(int x, int y, GUID geomId, eViewDirection& viewDir)
+{
+    BoundingBox bb;
+    geometryManager->GetGlobalBoundingBox(bb);
+
+    geometryManager->PickGeomArrow(x, y, geomId, bb, renderState, viewDir);
     return S_OK;
 }
 

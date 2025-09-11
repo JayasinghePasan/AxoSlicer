@@ -27,13 +27,13 @@ namespace AxoSlicer_Ui.ViewModels
             DeleteGeometry = new RelayCommand(g =>
             {
                 if (g is Utilities.Geometry geom)
-                    MainViewModel.Instance.GeometryManager.RemoveGeometry(geom.geometryId);
+                    MainViewModel.Instance.geometryManager.RemoveGeometry(geom.geometryId);
             });
 
             ToggleVisibility = new RelayCommand(g =>
             {
                 if (g is Utilities.Geometry geom)
-                    MainViewModel.Instance.GeometryManager.ToggleVisibility(geom.geometryId);
+                    MainViewModel.Instance.geometryManager.ToggleVisibility(geom.geometryId);
             });
 
             MainViewModel.Instance.GeometryManagerInitialized += (s, e) =>
@@ -41,7 +41,7 @@ namespace AxoSlicer_Ui.ViewModels
                 OnPropertyChanged(nameof(Geometries));
             };
 
-            if (MainViewModel.Instance.GeometryManager != null)
+            if (MainViewModel.Instance.geometryManager != null)
             {
                 OnPropertyChanged(nameof(Geometries));
             }
@@ -78,6 +78,6 @@ namespace AxoSlicer_Ui.ViewModels
         }
 
         public System.Collections.ObjectModel.ObservableCollection<Utilities.Geometry> Geometries
-            => MainViewModel.Instance.GeometryManager?.Geometries;
+            => MainViewModel.Instance.geometryManager?.Geometries;
     }
 }

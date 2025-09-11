@@ -101,7 +101,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\MousePickers\GeometryPicker.h" />
     <ClInclude Include="Public\iViewCube.h" />
+    <ClInclude Include="src\Rendering\MousePickers\MousePicker.h" />
     <ClInclude Include="src\Utilities\BottomGrid.h" />
     <ClInclude Include="src\Rendering\renderdoc_app.h" />
     <ClInclude Include="src\Common\BoundingBox.h" />
@@ -121,8 +123,10 @@
     <ClInclude Include="Public\iRenderView.h" />
     <ClInclude Include="src\Rendering\RenderBasics\ViewBase.h" />
     <ClInclude Include="src\Geometry\ViewCube.h" />
+    <ClInclude Include="src\Utilities\TranslateBox.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rendering\MousePickers\GeometryPicker.cpp" />
     <ClCompile Include="src\Utilities\BottomGrid.cpp" />
     <ClCompile Include="src\Geometry\Geometry.cpp" />
     <ClCompile Include="src\Geometry\GeometryManager.cpp" />
@@ -135,12 +139,18 @@
     </ClCompile>
     <ClCompile Include="src\Rendering\RenderBasics\ViewBase.cpp" />
     <ClCompile Include="src\Geometry\ViewCube.cpp" />
+    <ClCompile Include="src\Utilities\TranslateBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def" />
     <None Include="src\Rendering\Shaders\Common.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="src\Rendering\Shaders\GeometryPickPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="src\Rendering\Shaders\GridPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -157,6 +167,16 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Rendering\Shaders\SimpleVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\TranslateAxesPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\TranslateAxesVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
