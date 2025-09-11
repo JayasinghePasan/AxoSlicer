@@ -1,5 +1,3 @@
-Projecct is still under development.
-Sample Video: https://youtu.be/KKK23W9PRng
+Sample Video: [https://youtu.be/KKK23W9PRng](https://youtu.be/nSNg1FzgyD0)
 
-<video src="2025-09-08 11-37-35.mkv" controls width="800"></video>
-[![Watch the video](https://img.youtube.com/vi/KKK23W9PRng/maxresdefault.jpg)](https://youtu.be/KKK23W9PRng)
+[![Watch the video](https://img.youtube.com/vi/nSNg1FzgyD0/maxresdefault.jpg)](https://youtu.be/nSNg1FzgyD0)
