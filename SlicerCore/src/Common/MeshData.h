@@ -7,6 +7,7 @@ struct Vertex
     Vertex(float xx, float yy, float zz, float nnx, float nny, float nnz)
         : x(xx), y(yy), z(zz), nx(nnx), ny(nny), nz(nnz)
     {}
+    Vertex() {}
 };
 
 struct Vector3

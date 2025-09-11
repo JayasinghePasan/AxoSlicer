@@ -66,6 +66,12 @@ HRESULT __stdcall GeometryManager::RenderGeometries()
         if (it.second)
             it.second->Render();
     }
+
+    // render translate box
+    if (translateGeometry != nullptr)
+    {
+        translateBox.Render();
+    }
     return S_OK;
 }
 
@@ -114,6 +120,40 @@ HRESULT __stdcall GeometryManager::PickGeometry(int x, int y, GUID& pickGeomId, 
     GeometryPicker gp(geometryMap, renderState);
     gp.Pick(x, y);
     gp.ReadGeometry(pickGeomId);
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::PickGeomArrow(int x, int y, GUID geomId, BoundingBox globalBB, RenderState& rs, eViewDirection& viewDir)
+{
+    if (translateGeometry == nullptr)
+    {
+        viewDir = eViewDirection::Invalid;
+        return S_OK;
+    }
+#if _DEBUG
+    GUID translateGeomGuid;
+    translateGeometry->GetGuid(translateGeomGuid);
+    if (geomId != translateGeomGuid)
+        return E_FAIL;
+#endif
+
+    translateBox.Pick(x, y, globalBB, rs, viewDir);
+    return S_OK;
+}
+
+HRESULT __stdcall GeometryManager::setTranslateBox(GUID geomId, bool render)
+{
+    if (!render)
+    {
+        translateGeometry = nullptr;
+        translateBox.Disable();
+        return S_OK;
+    }
+    translateGeometry = geometryMap[geomId];
+    BoundingBox bb;
+    translateGeometry->GetBoundingBox(bb);
+    translateBox.Initialize(bb);
+
     return S_OK;
 }
 

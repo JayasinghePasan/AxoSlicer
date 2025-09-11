@@ -123,6 +123,7 @@
     <ClInclude Include="Public\iRenderView.h" />
     <ClInclude Include="src\Rendering\RenderBasics\ViewBase.h" />
     <ClInclude Include="src\Geometry\ViewCube.h" />
+    <ClInclude Include="src\Utilities\TranslateBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\MousePickers\GeometryPicker.cpp" />
@@ -138,6 +139,7 @@
     </ClCompile>
     <ClCompile Include="src\Rendering\RenderBasics\ViewBase.cpp" />
     <ClCompile Include="src\Geometry\ViewCube.cpp" />
+    <ClCompile Include="src\Utilities\TranslateBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def" />
@@ -165,6 +167,16 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Rendering\Shaders\SimpleVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\TranslateAxesPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\Rendering\Shaders\TranslateAxesVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

@@ -1,4 +1,5 @@
 ﻿using AxoSlicer_Ui.Interop;
+using AxoSlicer_Ui.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -79,20 +80,42 @@ namespace AxoSlicer_Ui.Utilities
             if (geomId == Guid.Empty)
             {
                 geometries.ToList().ForEach( geom => geom.nativeGeometry.Highlight(false));
+                nativeGeometryManager.setTranslateBox(geomId, false);
                 return;
             }
             Geometry geom = geometries.FirstOrDefault(g => g.geometryId == geomId);
             if (geom == null || !geom.IsVisible)
                 return;
             geom.nativeGeometry.Highlight(enable);
+            nativeGeometryManager.setTranslateBox(geomId, enable);
         }
 
         public void TranslateGeometry(Guid geomId, eViewDirection dir, float d)
         {
             Geometry geom = geometries.FirstOrDefault(g => g.geometryId == geomId);
-            if (geom == null || !geom.IsVisible)
+            if (geom == null || !geom.IsVisible || dir == eViewDirection.Invalid)
                 return;
-            //geom.Translate
+            switch(dir)
+            {
+                case eViewDirection.X_pos:
+                    geom.nativeGeometry.Translate(d, 0, 0);
+                    break;
+                case eViewDirection.X_neg:
+                    geom.nativeGeometry.Translate(-d, 0, 0);
+                    break;
+                case eViewDirection.Y_pos:
+                    geom.nativeGeometry.Translate(0, d, 0);
+                    break;
+                case eViewDirection.Y_neg:
+                    geom.nativeGeometry.Translate(d,-d, 0);
+                    break;
+                case eViewDirection.Z_pos:
+                    geom.nativeGeometry.Translate(0, 0, d);
+                    break;
+                case eViewDirection.Z_neg:
+                    geom.nativeGeometry.Translate(0, 0, -d);
+                    break;
+            }
         }
     }
 }

@@ -147,20 +147,23 @@ namespace AxoSlicer_Ui.Views
                     _pickModeGeometryId = Guid.Empty;
                     CurrentMode = MouseMode.Navigate;
                 }
+                return;
             }
 
             // single clicks
-            //if (CurrentMode == MouseMode.Pick)
-            //{
-            //    var pos = e.GetPosition(ViewHost);
-            //    Debug.Assert(_pickModeGeometryId != Guid.Empty);
-            //    _mainView.pickGeomArrow((int)pos.X, (int)pos.Y, _pickModeGeometryId, out _translateViewDir);
-            //    if (_translateViewDir != eViewDirection.Invalid)
-            //    {
-            //        ViewHost.CaptureMouse();
-            //        return; 
-            //    }
-            //}
+            if (CurrentMode == MouseMode.Pick)
+            {
+                var pos = e.GetPosition(ViewHost);
+                if (_pickModeGeometryId != Guid.Empty)
+                {
+                    _mainView.pickGeomArrow((int)pos.X, (int)pos.Y, _pickModeGeometryId, out _translateViewDir);
+                    if (_translateViewDir != eViewDirection.Invalid)
+                    {
+                        ViewHost.CaptureMouse();
+                        return;
+                    }
+                }
+            }
 
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
                 _rotating = true;
@@ -209,8 +212,6 @@ namespace AxoSlicer_Ui.Views
                         MainViewModel.Instance?.geometryManager.TranslateGeometry(_pickModeGeometryId, eViewDirection.Z_pos, dx);
                         break;
                 }
-
-                _pickModeGeometryId = Guid.Empty;
             }
         }
     }

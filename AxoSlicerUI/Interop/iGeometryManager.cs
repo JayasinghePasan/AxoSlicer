@@ -18,6 +18,8 @@ namespace AxoSlicer_Ui.Interop
         void GetGlobalBoundingBox(out BoundingBox box);
         void getGeometryCount(out int count);
         void SetVisibility(Guid geometryID, bool visible);
-        void EnableTranslateMode(int x, int y, out Guid pickGeomId);
+        void setTranslateBox(Guid geomId, bool render);
+        void PickGeometry(int x, int y, out Guid pickGeomId, IntPtr renderState);
+        void PickGeomArrow(int x, int y, Guid geomId, out eViewDirection viewDir);
     }
 }

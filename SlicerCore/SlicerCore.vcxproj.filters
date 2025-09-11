@@ -81,6 +81,9 @@
     <ClInclude Include="src\Rendering\MousePickers\MousePicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Utilities\TranslateBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\MainView.cpp">
@@ -113,6 +116,9 @@
     <ClCompile Include="src\Rendering\MousePickers\GeometryPicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utilities\TranslateBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SlicerCore.def">
@@ -128,5 +134,7 @@
     <FxCompile Include="src\Rendering\Shaders\ViewCubePickPS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\ViewCubePS.hlsl" />
     <FxCompile Include="src\Rendering\Shaders\GeometryPickPS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\TranslateAxesPS.hlsl" />
+    <FxCompile Include="src\Rendering\Shaders\TranslateAxesVS.hlsl" />
   </ItemGroup>
 </Project>
